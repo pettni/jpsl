@@ -3,66 +3,120 @@
 using namespace std;
 using namespace JPS;
 
-pair<vector<Point>, float> JPS::jps(Point start, Point goal) {
+pair<vector<Point>, float> JPS::jps(Point start, Point goal, bool (*is_valid)(const Point &)) {
 
   // map that gives parents in search
   map<Point, Point> parents;
 
   // priority queue with euclidean distance to target
   auto astar_cmp = [goal] (const ASNode & n1, const ASNode & n2) {
-    float d_n1_target = (n1.first - goal).norm();
-    float d_n2_target = (n2.first - goal).norm();
+    float d_n1_goal = (n1.first - goal).norm();
+    float d_n2_goal = (n2.first - goal).norm();
     float d_start_n1 = n1.second;
     float d_start_n2 = n2.second;
-    return d_start_n1 + d_n1_target > d_start_n2 + d_n2_target; 
+    return d_start_n1 + d_n1_goal > d_start_n2 + d_n2_goal; 
   };
   priority_queue<ASNode, vector<ASNode>, decltype(astar_cmp)> astar(astar_cmp);
   
-  astar.push({start, 0});
+  // initialize with all valid neighbors around start
+  for (int8_t dx = -1; dx != 2; ++dx) {
+    for (int8_t dy = -1; dy != 2; ++dy) {
+      for (int8_t dz = -1; dz != 2; ++dz) {
+        const Dir d(dx, dy, dz);
+        if (d != 13 && is_valid(start + d)) {
+          parents.insert({start+d, start});
+          astar.push({start+d, d.norm()});
+        }
+      }
+    }
+  } 
 
   bool found = false;
   int astar_iter = 0;
   while (!found && !astar.empty()) {
 
-    auto[current_node, d_start_current] = astar.top();
+    auto[c_node, d_start_current] = astar.top();
     astar.pop();
+    const Point & c_parent(parents.find(c_node)->second);
 
-    // Expand current_node
-    for (int8_t dx = -1; dx != 2; ++dx) {
-      for (int8_t dy = -1; dy != 2; ++dy) {
-        for (int8_t dz = -1; dz != 2; ++dz) {
-          const Point neighbor(current_node + Dir(dx, dy, dz));
-          if (parents.find(neighbor) == parents.end())  {
-            parents.insert({neighbor, current_node});
-            float d_current_neighbor = (current_node - neighbor).norm();
-            astar.push({neighbor, d_start_current + d_current_neighbor});
-          }
-          if (neighbor == goal) {
-            found = true;
-            break;
+    cout << "Currently at node " << c_node << " distance " << d_start_current << " coming from " << c_parent << endl;
+
+    if (true) {
+      // use Jump Point expansion 
+
+      // parent in local 3x3 frame centered at c_node
+      Dir d_parent(c_parent.x() - c_node.x(), c_parent.y() - c_node.y(), c_parent.z() - c_node.z());
+
+      // obstacles in local 3x3 frames
+      set<Dir> obstacles;
+      for (int8_t dx = -1; dx != 2; ++dx) {
+        for (int8_t dy = -1; dy != 2; ++dy) {
+          for (int8_t dz = -1; dz != 2; ++dz) {
+            const Dir d(dx, dy, dz);
+            if (!is_valid(c_node + d)) {
+              obstacles.insert(d);
+            }
           }
         }
       }
+
+      for (Dir d : neighbors(d_parent, obstacles)) {
+        if (c_node+d == goal) {
+          found = true;
+        }
+        if (parents.find(c_node+d) == parents.end()) {
+          cout << "adding node " << c_node+d << " with distance " << d_start_current + d.norm() <<  endl;
+          astar.push({c_node+d, d_start_current + d.norm()});
+          parents.insert({c_node+d, c_node});
+        }
+      }
+    } else {
+      // regular astar expansion
+
+      for (int8_t dx = -1; dx != 2; ++dx) {
+        for (int8_t dy = -1; dy != 2; ++dy) {
+          for (int8_t dz = -1; dz != 2; ++dz) {
+            const Point neighbor(c_node + Dir(dx, dy, dz));
+            if (parents.find(neighbor) == parents.end() && is_valid(neighbor))  {
+              parents.insert({neighbor, c_node});
+              float d_c_neighbor = (c_node - neighbor).norm();
+              astar.push({neighbor, d_start_current + d_c_neighbor});
+            }
+            if (neighbor == goal) {
+              found = true;
+              break;
+            }
+          }
+        }
+      }
+
     }
+
     ++astar_iter;
   }
 
-  vector<Point> sol_path;
-  float cost = 0;
 
-  while (goal != start) {
+  if (found) {
+
+    cout << "Finished astar after " << astar_iter << " iterations" << endl;
+
+    vector<Point> sol_path;
+
+    float cost = 0;
+    while (goal != start) {
+      sol_path.push_back(goal);
+      goal = parents.find(goal)->second;
+      cost += (goal - sol_path.back()).norm();
+    }
     sol_path.push_back(goal);
-    goal = parents.find(goal)->second;
-    cost += (goal - sol_path.back()).norm();
+
+    std::reverse(sol_path.begin(), sol_path.end());
+    return {move(sol_path), cost};
   }
-  sol_path.push_back(goal);
-
-  std::reverse(sol_path.begin(), sol_path.end());
-
-  return {move(sol_path), cost};
+  return {vector<Point>(), -1};
 }
 
-set<Dir> JPS::expand(Dir parent, set<Dir> obstacles) {
+set<Dir> JPS::neighbors(Dir parent, set<Dir> obstacles) {
   // return all nodes that require expansion when moving 
   // into unoccupied center of 3x3 box from parent
 

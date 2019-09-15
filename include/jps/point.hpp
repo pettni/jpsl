@@ -19,6 +19,10 @@ namespace JPS {
 	  Point(const Point &) = default;
 	  Point& operator=(const Point &) = default;
 
+	  inline int64_t x() const {return x_;}
+	  inline int64_t y() const {return y_;}
+	  inline int64_t z() const {return z_;}
+
 	  Point operator+(const Dir &) const;
 	  Point operator-(const Point &) const;
 	  bool operator==(const Point &) const;
@@ -26,14 +30,12 @@ namespace JPS {
 	  bool operator<(const Point &) const;
 	  float norm() const;
 
-	  friend std::ostream& operator<<(std::ostream&, const JPS::Point&);
-
 	private:
-	  int64_t x, y, z;
+	  int64_t x_, y_, z_;
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const JPS::Point& p) {
-	    os << "[" << (int) p.x << "," << (int) p.y << "," << (int) p.z << "]";
+	    os << "[" << (int) p.x() << "," << (int) p.y() << "," << (int) p.z() << "]";
 	    return os;
 	}
 

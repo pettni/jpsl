@@ -24,37 +24,37 @@ TEST(TestSuite, test2D)  {
   // Test 2D-1
   Dir par = {-1, 0, 0};
   set<Dir> obs = obs_2d;
-  set<Dir> neighbors = expand(par, obs);
+  set<Dir> nn = neighbors(par, obs);
 
   set<Dir> rhs = {{1,0,0}};
-  EXPECT_EQ(neighbors, rhs);
+  EXPECT_EQ(nn, rhs);
 
 
   // Test 2D-2
   par = {-1, 0, 0};
   obs = obs_2d;
   obs.insert(Dir(0,1,0));
-  neighbors = expand(par, obs);
+  nn = neighbors(par, obs);
 
   rhs = {{1,0,0}, {1,1,0}};
-  EXPECT_EQ(neighbors, rhs);
+  EXPECT_EQ(nn, rhs);
 
   // Test 2D-3 
   par = {-1, -1, 0};
   obs = {};
-  neighbors = expand(par, obs_2d);
+  nn = neighbors(par, obs_2d);
 
   rhs = {{1,0,0}, {1,1,0}, {0,1,0}};
-  EXPECT_EQ(neighbors, rhs);
+  EXPECT_EQ(nn, rhs);
 
   // Test 2D-4 
   par = {-1, -1, 0};
   obs = obs_2d;
   obs.insert(Dir(-1,0,0));
-  neighbors = expand(par, obs);
+  nn = neighbors(par, obs);
 
   rhs = {{-1,1,0}, {1,0,0}, {1,1,0}, {0,1,0}};
-  EXPECT_EQ(neighbors, rhs);
+  EXPECT_EQ(nn, rhs);
 }
 
 TEST(TestSuite, test3D) {
@@ -64,16 +64,16 @@ TEST(TestSuite, test3D) {
   // Planning dynamically feasible trajectories for quadrotors using safe flight corridors in 3-D complex environments. 
   // IEEE Robotics and Automation Letters, 2(3), 1688–1695. https://doi.org/10.1109/LRA.2017.2663526
   //
-  // These examples are a bit conservative, they add more forced neighbors than necessary, not
+  // These examples are a bit conservative, they add more forced nn than necessary, not
   // all that are expected from the paper are returned
 
   // Test 3D-1: expected 
   Dir par = {-1, 0, 0};
   set<Dir> obs = {{0, -1, 0}, {0, -1, 1}};
-  set<Dir> neighbors = expand(par, obs);
+  set<Dir> nn = neighbors(par, obs);
 
   set<Dir> rhs = {{1,0,0}, {1,-1,0}, {1, -1, 1}};
-  EXPECT_EQ(neighbors, rhs);
+  EXPECT_EQ(nn, rhs);
 
   // Test 3D-2: expected {{1,0,0}, {1,1,0}, {0, 1, 0}, 
   //                   {1, -1, 0}, {1,0,1}, {1,1,1}, 
@@ -82,10 +82,10 @@ TEST(TestSuite, test3D) {
   // MISSING: {1, -1, 0}  and  {0, 1, 1} but seems fine
   par = {-1, -1, 0};
   obs = {{0, -1, 0}, {0, -1, 1}, {0, 0, 1}};
-  neighbors = expand(par, obs);
+  nn = neighbors(par, obs);
 
   rhs = {{1,0,0}, {1,1,0}, {0, 1, 0}, {1,0,1}, {1,1,1}, {1, -1, 1}};
-  EXPECT_EQ(neighbors, rhs);
+  EXPECT_EQ(nn, rhs);
 
   // Test 3D-3: expected {{1,0,-1}, {1,1,-1}, 
   //                   {0, 1, -1}, {1, -1, -1},
@@ -95,9 +95,9 @@ TEST(TestSuite, test3D) {
   // MISSING: {1, 0, -1}, {1,1,-1}, {0,1,-1}, {1,-1,-1} but seems fine
   par = {-1, -1, -1};
   obs = {{0, -1, -1}, {0, 0, -1}};
-  neighbors = expand(par, obs);
+  nn = neighbors(par, obs);
 
   rhs = {{1,1,1}, {1,1,0}, {1,0,1}, {0,1,1},
                   {1,0,0}, {0,1,0}, {0,0,1}};
-  EXPECT_EQ(neighbors, rhs);
+  EXPECT_EQ(nn, rhs);
 }
