@@ -33,6 +33,10 @@ add_executable(test3x3 test/test3x3.cpp)
 target_link_libraries(test3x3 jps gtest_main)
 add_test(NAME test3x3 COMMAND test3x3)
 
+add_executable(test_jump test/test_jump.cpp)
+target_link_libraries(test_jump jps gtest_main)
+add_test(NAME test_jump COMMAND test_jump)
+
 ############# TEMP MAIN #################
 
 add_executable(main src/main.cpp)

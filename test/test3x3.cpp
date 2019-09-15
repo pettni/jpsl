@@ -24,7 +24,7 @@ TEST(TestSuite, test2D)  {
   // Test 2D-1
   Dir par = {-1, 0, 0};
   set<Dir> obs = obs_2d;
-  set<Dir> nn = neighbors(par, obs);
+  set<Dir> nn = all_neighbors(par, obs);
 
   set<Dir> rhs = {{1,0,0}};
   EXPECT_EQ(nn, rhs);
@@ -34,7 +34,7 @@ TEST(TestSuite, test2D)  {
   par = {-1, 0, 0};
   obs = obs_2d;
   obs.insert(Dir(0,1,0));
-  nn = neighbors(par, obs);
+  nn = all_neighbors(par, obs);
 
   rhs = {{1,0,0}, {1,1,0}};
   EXPECT_EQ(nn, rhs);
@@ -42,7 +42,7 @@ TEST(TestSuite, test2D)  {
   // Test 2D-3 
   par = {-1, -1, 0};
   obs = {};
-  nn = neighbors(par, obs_2d);
+  nn = all_neighbors(par, obs_2d);
 
   rhs = {{1,0,0}, {1,1,0}, {0,1,0}};
   EXPECT_EQ(nn, rhs);
@@ -51,7 +51,7 @@ TEST(TestSuite, test2D)  {
   par = {-1, -1, 0};
   obs = obs_2d;
   obs.insert(Dir(-1,0,0));
-  nn = neighbors(par, obs);
+  nn = all_neighbors(par, obs);
 
   rhs = {{-1,1,0}, {1,0,0}, {1,1,0}, {0,1,0}};
   EXPECT_EQ(nn, rhs);
@@ -70,7 +70,7 @@ TEST(TestSuite, test3D) {
   // Test 3D-1: expected 
   Dir par = {-1, 0, 0};
   set<Dir> obs = {{0, -1, 0}, {0, -1, 1}};
-  set<Dir> nn = neighbors(par, obs);
+  set<Dir> nn = all_neighbors(par, obs);
 
   set<Dir> rhs = {{1,0,0}, {1,-1,0}, {1, -1, 1}};
   EXPECT_EQ(nn, rhs);
@@ -82,7 +82,7 @@ TEST(TestSuite, test3D) {
   // MISSING: {1, -1, 0}  and  {0, 1, 1} but seems fine
   par = {-1, -1, 0};
   obs = {{0, -1, 0}, {0, -1, 1}, {0, 0, 1}};
-  nn = neighbors(par, obs);
+  nn = all_neighbors(par, obs);
 
   rhs = {{1,0,0}, {1,1,0}, {0, 1, 0}, {1,0,1}, {1,1,1}, {1, -1, 1}};
   EXPECT_EQ(nn, rhs);
@@ -95,7 +95,7 @@ TEST(TestSuite, test3D) {
   // MISSING: {1, 0, -1}, {1,1,-1}, {0,1,-1}, {1,-1,-1} but seems fine
   par = {-1, -1, -1};
   obs = {{0, -1, -1}, {0, 0, -1}};
-  nn = neighbors(par, obs);
+  nn = all_neighbors(par, obs);
 
   rhs = {{1,1,1}, {1,1,0}, {1,0,1}, {0,1,1},
                   {1,0,0}, {0,1,0}, {0,0,1}};

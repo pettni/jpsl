@@ -20,7 +20,7 @@ namespace JPS {
 
     uint8_t order() const;
 
-    Dir operator-();
+    Dir operator-() const;
     float distance_to(const Dir &) const;
     float norm() const;
 

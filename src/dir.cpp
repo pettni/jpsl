@@ -19,7 +19,7 @@ uint8_t Dir::order() const {
   return uint8_t((data % 3) != 1) + uint8_t(((data/3)%3) != 1) + uint8_t(((data/9)%3) != 1);
 }
 
-Dir Dir::operator-() {
+Dir Dir::operator-() const {
   return Dir(-dx(),-dy(),-dz());
 }
 

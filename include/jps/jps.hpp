@@ -12,11 +12,17 @@ namespace JPS {
 	
 	std::pair<std::vector<Point>, float> jps(Point, Point, bool (*)(const Point &));
 
-	std::set<Dir> neighbors(Dir, std::set<Dir>);
+	std::set<Dir> all_neighbors(const Point &, const Point &, bool (*)(const Point &));
+	std::set<Dir> natural_neighbors(const Point &, const Point &, bool (*)(const Point &));
+	std::set<Dir> forced_neighbors(const Point &, const Point &, bool (*)(const Point &));
+
+	std::set<Dir> all_neighbors(const Dir &, const std::set<Dir> &);
+	std::set<Dir> natural_neighbors(const Dir &, const std::set<Dir> &);
+	std::set<Dir> forced_neighbors(const Dir &, const std::set<Dir> &);
 
 	// std::set<Dir> JPS::successors(Point p, Point goal);
 
-	// Point JPS::jump(Point p, Dir d, Point goal);
+	std::pair<bool, Point> jump(const Point &, const Dir &, const Point &, bool (*)(const Point &));
 
 }
 
