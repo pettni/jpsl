@@ -4,8 +4,7 @@ project(jps)
 add_compile_options(-std=c++17)
 set(CMAKE_CXX_FLAGS "-g -Wall")
 
-######################################
-######################################
+########## DOWNLOAD GTEST ############
 
 include(FetchContent)
 FetchContent_Declare(
@@ -22,19 +21,20 @@ endif()
 
 enable_testing()
 
-#####################################
-#####################################
+########### BUILD LIB ################
 
 include_directories(include)
 
-add_library(jps src/jps.cpp)
-
-add_executable(main src/main.cpp)
-
-target_link_libraries(main jps)
+add_library(jps src/jps.cpp src/point.cpp src/dir.cpp)
 
 ############ BUILD TESTS ################
 
 add_executable(test3x3 test/test3x3.cpp)
 target_link_libraries(test3x3 jps gtest_main)
 add_test(NAME test3x3 COMMAND test3x3)
+
+############# TEMP MAIN #################
+
+add_executable(main src/main.cpp)
+
+target_link_libraries(main jps)

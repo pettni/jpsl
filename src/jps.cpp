@@ -1,41 +1,68 @@
-#include "jps.hpp"
+#include "jps/jps.hpp"
 
-Dir::Dir(uint8_t data) : data(data) {}
+using namespace std;
+using namespace JPS;
 
-Dir::operator int8_t() const {return data;}
+pair<vector<Point>, float> JPS::jps(Point start, Point goal) {
 
-Dir::Dir(int8_t dx, int8_t dy, int8_t dz) : data(dx+1 + 3*(dy+1) + 9*(dz+1)) {}
+  // map that gives parents in search
+  map<Point, Point> parents;
 
-int8_t Dir::dx() const {return data % 3 - 1;}
+  // priority queue with euclidean distance to target
+  auto astar_cmp = [goal] (const ASNode & n1, const ASNode & n2) {
+    float d_n1_target = (n1.first - goal).norm();
+    float d_n2_target = (n2.first - goal).norm();
+    float d_start_n1 = n1.second;
+    float d_start_n2 = n2.second;
+    return d_start_n1 + d_n1_target > d_start_n2 + d_n2_target; 
+  };
+  priority_queue<ASNode, vector<ASNode>, decltype(astar_cmp)> astar(astar_cmp);
+  
+  astar.push({start, 0});
 
-int8_t Dir::dy() const {return (data/3)%3 - 1;}
+  bool found = false;
+  int astar_iter = 0;
+  while (!found && !astar.empty()) {
 
-int8_t Dir::dz() const {return (data/9)%3 - 1;}
+    auto[current_node, d_start_current] = astar.top();
+    astar.pop();
 
-uint8_t Dir::order() const {
-  return uint8_t((data % 3) != 1) + uint8_t(((data/3)%3) != 1) + uint8_t(((data/9)%3) != 1);
+    // Expand current_node
+    for (int8_t dx = -1; dx != 2; ++dx) {
+      for (int8_t dy = -1; dy != 2; ++dy) {
+        for (int8_t dz = -1; dz != 2; ++dz) {
+          const Point neighbor(current_node + Dir(dx, dy, dz));
+          if (parents.find(neighbor) == parents.end())  {
+            parents.insert({neighbor, current_node});
+            float d_current_neighbor = (current_node - neighbor).norm();
+            astar.push({neighbor, d_start_current + d_current_neighbor});
+          }
+          if (neighbor == goal) {
+            found = true;
+            break;
+          }
+        }
+      }
+    }
+    ++astar_iter;
+  }
+
+  vector<Point> sol_path;
+  float cost = 0;
+
+  while (goal != start) {
+    sol_path.push_back(goal);
+    goal = parents.find(goal)->second;
+    cost += (goal - sol_path.back()).norm();
+  }
+  sol_path.push_back(goal);
+
+  std::reverse(sol_path.begin(), sol_path.end());
+
+  return {move(sol_path), cost};
 }
 
-Dir Dir::operator-() {
-  return Dir(-dx(),-dy(),-dz());
-}
-
-float Dir::distance_to(const Dir & other) const {
-  return sqrt(float((dx() - other.dx())*(dx() - other.dx()) + 
-                    (dy() - other.dy())*(dy() - other.dy()) +
-                    (dz() - other.dz())*(dz() - other.dz())));
-}
-
-float Dir::norm() const {
-  return sqrt(float(dx()*dx() + dy()*dy() + dz()*dz()));
-}
-
-ostream& operator<<(ostream& stream, const Dir& dir) {
-    stream << "[" << (int) dir.dx() << "," << (int) dir.dy() << "," << (int) dir.dz() << "]";
-    return stream;
-}
-
-set<Dir> expand(Dir parent, set<Dir> obstacles) {
+set<Dir> JPS::expand(Dir parent, set<Dir> obstacles) {
   // return all nodes that require expansion when moving 
   // into unoccupied center of 3x3 box from parent
 
@@ -75,7 +102,7 @@ set<Dir> expand(Dir parent, set<Dir> obstacles) {
     // is shorter than shortest path that excludes center
 
     // solve djikstra from parent excluding obstacles and origin (27)
-    map<Dir, double> dist;
+    map<Dir, float> dist;
     vector<Dir> remaining;
     for (int i=0; i!=27; ++i) {
       if (i != 13 && obstacles.find(i) == obstacles.end()) {

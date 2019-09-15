@@ -1,81 +1,22 @@
-#include "jps.hpp"
-
 #include <iostream>
+
+#include "jps/jps.hpp"
+
+using namespace JPS;
+using namespace std;
+
+bool state_valid(long x, long y, long z) {
+  return x >= 0 && x < 10 && y >= 0 && y < 10 && z >= 0 && z < 10;
+}
 
 int main(int argc, char const *argv[]) {
 
-  // Test 2D-1: expected {1,0,0}
-  Dir par = {-1, 0, 0};
-  set<Dir> obs = {};
-  set<Dir> neighbors = expand(par, obs);
+  auto[path, cost] = jps({0,0,0}, {7,4,6});
 
-  cout << "Test 2D-1" << endl;
-  for (Dir d : neighbors)
-    cout << d << endl;
+  cout << "Solved with cost " << cost << endl;
 
-  // Test 2D-2:  expected {{1,0,0}, {1,1,0}}
-  par = {-1, 0, 0};
-  obs = {{0,1,0}};
-  neighbors = expand(par, obs);
-
-  cout << "Test 2D-2" << endl;
-  for (Dir d : neighbors)
-    cout << d << endl;
-
-  // Test 2D-3:  expected {{1,0,0}, {1,1,0}, {0,1,0}}
-  par = {-1, -1, 0};
-  obs = {};
-  neighbors = expand(par, obs);
-
-  cout << "Test 2D-3" << endl;
-  for (Dir d : neighbors)
-    cout << d << endl;
-
-  // Test 2D-4:  expected {{-1,1,0}, {1,0,0}, {1,1,0}, {0,1,0}}
-  par = {-1, -1, 0};
-  obs = {{-1,0,0}, {-1,0,1}, {-1,0,-1}};
-  neighbors = expand(par, obs);
-
-  cout << "Test 2D-4" << endl;
-  for (Dir d : neighbors)
-    cout << d << endl;
-
-  // Test 3D-1: expected {{1,0,0}, {1,-1,0}, {1, -1, 1}}
-  par = {-1, 0, 0};
-  obs = {{0, -1, 0}, {0, -1, 1}};
-  neighbors = expand(par, obs);
-
-  cout << "Test 3D-1" << endl;
-  for (Dir d : neighbors)
-    cout << d << endl;
-
-  // Test 3D-2: expected {{1,0,0}, {1,1,0}, {0, 1, 0}, 
-  //                   {1, -1, 0}, {1,0,1}, {1,1,1}, 
-  //                   {0, 1, 1}, {1, -1, 1}}
-
-  // MISSING: {1, -1, 0}  and  {0, 1, 1} but seems fine
-  par = {-1, -1, 0};
-  obs = {{0, -1, 0}, {0, -1, 1}, {0, 0, 1}};
-  neighbors = expand(par, obs);
-
-  cout << "Test 3D-2" << endl;
-  for (Dir d : neighbors)
-    cout << d << endl;
-
-  // Test 3D-3: expected {{1,0,-1}, {1,1,-1}, 
-  //                   {0, 1, -1}, {1, -1, -1},
-  //                   {1,1,1}, {1,1,0}, {1,0,1}, {0,1,1},
-  //                   {1,0,0}, {0,1,0}, {0,0,1}}
-
-  // MISSING: {1, 0, -1}, {1,1,-1}, {0,1,-1}, {1,-1,-1} but seems fine
-  par = {-1, -1, -1};
-  obs = {{0, -1, -1}, {0, 0, -1}};
-  neighbors = expand(par, obs);
-
-  cout << "Test 3D-3" << endl;
-  for (Dir d : neighbors)
-    cout << d << endl;
-
+  for (Point p : path)
+  	cout << p << endl;
 
   return 0;
 }

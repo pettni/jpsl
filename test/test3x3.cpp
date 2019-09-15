@@ -1,8 +1,11 @@
+#include <iostream>
+#include <set>
 #include "gtest/gtest.h"
 
-#include "jps.hpp"
+#include "jps/jps.hpp"
 
-#include <iostream>
+using namespace std;
+using namespace JPS;
 
 TEST(TestSuite, test2D)  {
   // Examples from 

@@ -3,6 +3,7 @@
 ## Why this one?
 
  - Faster than Kumar's algorithm, prunes more points
+ - More flexible interface
 
 ## TODOs
 
