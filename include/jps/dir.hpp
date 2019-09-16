@@ -24,8 +24,9 @@ namespace JPS {
     float distance_to(const Dir &) const;
     float norm() const;
 
+    friend class Point;
   private:
-    uint8_t data;
+    int8_t dx_, dy_, dz_;
   };
 
   inline std::ostream& operator<<(std::ostream& os, const JPS::Dir & d) {
@@ -34,6 +35,5 @@ namespace JPS {
   }
 
 }
-
 
 #endif

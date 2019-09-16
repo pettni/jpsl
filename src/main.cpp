@@ -2,17 +2,15 @@
 
 #include "jps/jps.hpp"
 
-using namespace JPS;
 using namespace std;
+using namespace JPS;
 
 bool state_valid(const Point & p) {
-
-
   if (p.x() < 0 || p.x() >= 8 || p.y() < 0 || p.y() >= 5 || p.z() < 0 || p.z() > 0)
-  	return false;
+    return false;
 
   if (p.x() == 5 && p.y() < 3)
-  	return false;
+    return false;
 
   return true;
 }
@@ -24,7 +22,7 @@ int main(int argc, char const *argv[]) {
   cout << "Solved with cost " << cost << endl;
 
   for (Point p : path)
-  	cout << p << endl;
+    cout << p << endl;
 
   return 0;
 }

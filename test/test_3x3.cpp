@@ -27,16 +27,18 @@ TEST(TestSuite, test2D)  {
   Dir par = {-1, 0, 0};
   set<Dir> obs = obs_2d;
   set<Dir> nn = all_neighbors(center, Point(-1,0,0), [center, obs] (const Point & p) {
-    return obs.find(center.incoming_dir(p)) == obs.end();
+    return obs.find(center.direction_to(p)) == obs.end();
   });
 
   set<Dir> rhs = {{1,0,0}};
   EXPECT_EQ(nn, rhs);
 
   // Compare forced
-  set<Dir> fn1 = forced_neighbors_slow(par, [center, obs] (const Dir & d) {return obs.find(d) == obs.end();}); 
+  set<Dir> fn1 = forced_neighbors_slow(center, Point(-1,0,0), [center, obs] (const Point & p) {
+    return obs.find(center.direction_to(p)) == obs.end();
+  });    
   set<Dir> fn2 = forced_neighbors_fast(center, Point(-1,0,0), [center, obs] (const Point & p) {
-    return obs.find(center.incoming_dir(p)) == obs.end();
+    return obs.find(center.direction_to(p)) == obs.end();
   });
   EXPECT_EQ(fn1, fn2);
 
@@ -45,14 +47,16 @@ TEST(TestSuite, test2D)  {
   obs = obs_2d;
   obs.insert(Dir(0,1,0));
   nn = all_neighbors(center, Point(-1,0,0), [center, obs] (const Point & p) {
-    return obs.find(center.incoming_dir(p)) == obs.end();
+    return obs.find(center.direction_to(p)) == obs.end();
   });
 
   rhs = {{1,0,0}, {1,1,0}};
   EXPECT_EQ(nn, rhs);
-  fn1 = forced_neighbors_slow(par, [center, obs] (const Dir & d) {return obs.find(d) == obs.end();}); 
+  fn1 = forced_neighbors_slow(center, Point(-1,0,0), [center, obs] (const Point & p) {
+    return obs.find(center.direction_to(p)) == obs.end();
+  });    
   fn2 = forced_neighbors_fast(center, Point(-1,0,0), [center, obs] (const Point & p) {
-    return obs.find(center.incoming_dir(p)) == obs.end();
+    return obs.find(center.direction_to(p)) == obs.end();
   });
   EXPECT_EQ(fn1, fn2);
 
@@ -60,14 +64,16 @@ TEST(TestSuite, test2D)  {
   par = {-1, -1, 0};
   obs = obs_2d;
   nn = all_neighbors(center, Point(-1,-1,0), [center, obs] (const Point & p) {
-    return obs.find(center.incoming_dir(p)) == obs.end();
+    return obs.find(center.direction_to(p)) == obs.end();
   });
   rhs = {{1,0,0}, {1,1,0}, {0,1,0}};
   EXPECT_EQ(nn, rhs);
 
-  fn1 = forced_neighbors_slow(par, [center, obs] (const Dir & d) {return obs.find(d) == obs.end();}); 
+  fn1 = forced_neighbors_slow(center, Point(-1,-1,0), [center, obs] (const Point & p) {
+    return obs.find(center.direction_to(p)) == obs.end();
+  });    
   fn2 = forced_neighbors_fast(center, Point(-1,-1,0), [center, obs] (const Point & p) {
-    return obs.find(center.incoming_dir(p)) == obs.end();
+    return obs.find(center.direction_to(p)) == obs.end();
   });
   EXPECT_EQ(fn1, fn2);
 
@@ -76,15 +82,17 @@ TEST(TestSuite, test2D)  {
   obs = obs_2d;
   obs.insert(Dir(-1,0,0));
   nn = all_neighbors(center, Point(-1,-1,0), [center, obs] (const Point & p) {
-    return obs.find(center.incoming_dir(p)) == obs.end();
+    return obs.find(center.direction_to(p)) == obs.end();
   });
 
   rhs = {{-1,1,0}, {1,0,0}, {1,1,0}, {0,1,0}};
   EXPECT_EQ(nn, rhs);
 
-  fn1 = forced_neighbors_slow(par, [center, obs] (const Dir & d) {return obs.find(d) == obs.end();}); 
+  fn1 = forced_neighbors_slow(center, Point(-1,-1,0), [center, obs] (const Point & p) {
+    return obs.find(center.direction_to(p)) == obs.end();
+  });    
   fn2 = forced_neighbors_fast(center, Point(-1,-1,0), [center, obs] (const Point & p) {
-    return obs.find(center.incoming_dir(p)) == obs.end();
+    return obs.find(center.direction_to(p)) == obs.end();
   });
   EXPECT_EQ(fn1, fn2);
 
@@ -106,14 +114,16 @@ TEST(TestSuite, test3D) {
   Dir par = {-1, 0, 0};
   set<Dir> obs = {{0, -1, 0}, {0, -1, 1}};
   set<Dir> nn = all_neighbors(center, Point(-1,0,0), [center, obs] (const Point & p) {
-    return obs.find(center.incoming_dir(p)) == obs.end();
+    return obs.find(center.direction_to(p)) == obs.end();
   });
   set<Dir> rhs = {{1,0,0}, {1,-1,0}, {1, -1, 1}};
   EXPECT_EQ(nn, rhs);
 
-  set<Dir> fn1 = forced_neighbors_slow(par, [center, obs] (const Dir & d) {return obs.find(d) == obs.end();}); 
+  set<Dir> fn1 = forced_neighbors_slow(center, Point(-1,0,0), [center, obs] (const Point & p) {
+    return obs.find(center.direction_to(p)) == obs.end();
+  });    
   set<Dir> fn2 = forced_neighbors_fast(center, Point(-1,0,0), [center, obs] (const Point & p) {
-    return obs.find(center.incoming_dir(p)) == obs.end();
+    return obs.find(center.direction_to(p)) == obs.end();
   });
   EXPECT_EQ(fn1, fn2);
 
@@ -126,15 +136,17 @@ TEST(TestSuite, test3D) {
   par = {-1, -1, 0};
   obs = {{0, -1, 0}, {0, -1, 1}, {0, 0, 1}};
   nn = all_neighbors(center, Point(-1,-1,0), [center, obs] (const Point & p) {
-    return obs.find(center.incoming_dir(p)) == obs.end();
+    return obs.find(center.direction_to(p)) == obs.end();
   });
 
   rhs = {{1,0,0}, {1,1,0}, {0, 1, 0}, {1,0,1}, {1,1,1}, {1, -1, 1}};
   EXPECT_EQ(nn, rhs);
 
-  fn1 = forced_neighbors_slow(par, [center, obs] (const Dir & d) {return obs.find(d) == obs.end();}); 
+  fn1 = forced_neighbors_slow(center, Point(-1,-1,0), [center, obs] (const Point & p) {
+    return obs.find(center.direction_to(p)) == obs.end();
+  });    
   fn2 = forced_neighbors_fast(center, Point(-1,-1,0), [center, obs] (const Point & p) {
-    return obs.find(center.incoming_dir(p)) == obs.end();
+    return obs.find(center.direction_to(p)) == obs.end();
   });
   EXPECT_EQ(fn1, fn2);
 
@@ -147,16 +159,18 @@ TEST(TestSuite, test3D) {
   par = {-1, -1, -1};
   obs = {{0, -1, -1}, {0, 0, -1}};
   nn = all_neighbors(center, Point(-1,-1,-1), [center, obs] (const Point & p) {
-    return obs.find(center.incoming_dir(p)) == obs.end();
+    return obs.find(center.direction_to(p)) == obs.end();
   });
 
   rhs = {{1,1,1}, {1,1,0}, {1,0,1}, {0,1,1},
                   {1,0,0}, {0,1,0}, {0,0,1}};
   EXPECT_EQ(nn, rhs);
 
-  fn1 = forced_neighbors_slow(par, [center, obs] (const Dir & d) {return obs.find(d) == obs.end();}); 
+  fn1 = forced_neighbors_slow(center, Point(-1,-1,-1), [center, obs] (const Point & p) {
+    return obs.find(center.direction_to(p)) == obs.end();
+  });    
   fn2 = forced_neighbors_fast(center, Point(-1,-1,-1), [center, obs] (const Point & p) {
-    return obs.find(center.incoming_dir(p)) == obs.end();
+    return obs.find(center.direction_to(p)) == obs.end();
   });
   EXPECT_EQ(fn1, fn2);
 }
