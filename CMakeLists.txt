@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(jps)
 
 add_compile_options(-std=c++17)
-set(CMAKE_CXX_FLAGS "-g -Wall")
+set(CMAKE_CXX_FLAGS "-g -O3 -s -DNDEBUG -Wall")   # release
+# set(CMAKE_CXX_FLAGS "-g -Wall")                 # debug
 
 ########## DOWNLOAD GTEST ############
 

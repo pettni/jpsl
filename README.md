@@ -24,3 +24,4 @@ Then run tests with ```ctest```
  - [ ] Implement ```state_valid()``` for octomaps
  - [ ] Optional buffer for ```state_valid()```
  - [ ] Optimize for 2D problems
+ - [ ] Make stuff into iterators instead of returning sets

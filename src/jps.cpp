@@ -3,7 +3,7 @@
 using namespace std;
 using namespace JPS;
 
-pair<vector<Point>, float> JPS::jps(Point start, Point goal, function<bool(const Point &)> is_valid) {
+pair<vector<Point>, float> JPS::jps(Point start, Point goal, const function<bool(const Point &)> & is_valid) {
 
   // map that gives parents in search
   map<Point, Point> parents;
@@ -26,7 +26,6 @@ pair<vector<Point>, float> JPS::jps(Point start, Point goal, function<bool(const
   int astar_iter = 0;
   while (!found && !astar.empty()) {
 
-
     auto[c_node, d_start_current] = astar.top();
     astar.pop();
     const Point & c_parent(parents.find(c_node)->second);
@@ -37,9 +36,6 @@ pair<vector<Point>, float> JPS::jps(Point start, Point goal, function<bool(const
       for (Point p : successors(c_node, c_parent, goal, is_valid)) {
         if (p == goal)
           found = true;
-        if (parents.find(p) != parents.end())
-          throw string("JPS came back to visited node!");
-
         astar.push({p, (p - c_node).norm()});
         parents.insert({p, c_node});
       }
@@ -56,15 +52,12 @@ pair<vector<Point>, float> JPS::jps(Point start, Point goal, function<bool(const
           break;
         }
       }
-
     }
-
     ++astar_iter;
   }
 
   if (found) {
     vector<Point> sol_path;
-
     float cost = 0;
     while (goal != start) {
       sol_path.push_back(goal);
@@ -79,7 +72,24 @@ pair<vector<Point>, float> JPS::jps(Point start, Point goal, function<bool(const
   return {vector<Point>(), -1};
 }
 
-pair<bool, Point> JPS::jump(const Point & p, const Dir & d, const Point & goal, function<bool(const Point &)> is_valid) {
+std::set<Point> JPS::successors(const Point & node, const Point & parent, const Point & goal, const function<bool(const Point &)> & is_valid) {
+
+  set<Point> ret;
+
+  const set<Dir> jump_dirs = (node==parent) 
+    ? JPS::NEIGHBORS_3D                                                    // no parent, all directions
+    : all_neighbors(node, parent, is_valid);  // jump pruned directions
+
+  for (Dir d : jump_dirs) {
+    auto[succ, new_node] = jump(node, d, goal, is_valid);
+    if (succ) 
+      ret.insert(new_node);
+  }
+
+  return move(ret);
+}
+
+pair<bool, Point> JPS::jump(const Point & p, const Dir & d, const Point & goal, const function<bool(const Point &)> & is_valid) {
 
   if (!is_valid(p))  // can't jump from here
     return {false, p};
@@ -87,16 +97,14 @@ pair<bool, Point> JPS::jump(const Point & p, const Dir & d, const Point & goal, 
   Point par_iter = p;
   Point nod_iter = p+d;
 
-  cout << "Jumping from " << p << " in direction " << d << endl;
-
-  while(is_valid(nod_iter)) {     
+  while(is_valid(nod_iter)) {
 
     // check if we hit goal node
     if (nod_iter == goal)
       return {true, nod_iter};
 
     // check if forced neighbor exists
-    if (!forced_neighbors(nod_iter, par_iter, is_valid).empty())
+    if (!forced_neighbors_fast(nod_iter, par_iter, is_valid).empty())
       return {true, nod_iter};
 
     // jump in lower-order directions
@@ -139,76 +147,57 @@ pair<bool, Point> JPS::jump(const Point & p, const Dir & d, const Point & goal, 
   return {false, p};
 }
 
-std::set<Point> JPS::successors(const Point & node, const Point & parent, const Point & goal, function<bool(const Point &)> is_valid) {
-
-  set<Point> ret;
-
-  if (node == parent) {
-    // jump in all possible directions
-    for (Dir d : JPS::NEIGHBORS_3D) {
-      auto[succ, new_node] = jump(node, d, goal, is_valid);
-      if (succ) 
-        ret.insert(new_node);
-    }
-  } else {
-    // jump in neighbor directions
-    for (Dir d : all_neighbors(node, parent, is_valid)) {
-      auto[succ, new_node] = jump(node, d, goal, is_valid);
-      if (succ) 
-        ret.insert(new_node);
-    }
-  }
-  return move(ret);
-}
-
-set<Dir> JPS::natural_neighbors(const Point & node, const Point & parent, function<bool(const Point &)> is_valid) {
-  function<bool(const Dir &)> dir_is_valid = [node, is_valid] (const Dir & dir) {return is_valid(node + dir);};
-  return JPS::natural_neighbors_(node.incoming_dir(parent), dir_is_valid);
-}
-
-set<Dir> JPS::forced_neighbors(const Point & node, const Point & parent, function<bool(const Point &)> is_valid) {
-  function<bool(const Dir &)> dir_is_valid = [node, is_valid] (const Dir & dir) {return is_valid(node + dir);};
-  return JPS::forced_neighbors_fast(node.incoming_dir(parent), dir_is_valid);
-}
-
-set<Dir> JPS::all_neighbors(const Point & node, const Point & parent, function<bool(const Point &)> is_valid) {
-  function<bool(const Dir &)> dir_is_valid = [node, is_valid] (const Dir & dir) {return is_valid(node + dir);};
-  return JPS::all_neighbors_(node.incoming_dir(parent), dir_is_valid);
-}
-
-set<Dir> JPS::natural_neighbors_(const Dir & parent, function<bool(const Dir &)> is_valid) {
+set<Dir> JPS::natural_neighbors(const Point & node, const Point & parent, const function<bool(const Point &)> & is_valid) {
   set<Dir> ret;
-  
-  ret.insert(-parent);
 
-  if (parent.order() == 2) {
-    if ((parent.dx() == 0 || parent.dy() == 0) && is_valid(Dir(0, 0, -parent.dz())))
-      ret.insert(Dir(0, 0, -parent.dz()));
-    if ((parent.dx() == 0 || parent.dz() == 0) && is_valid(Dir(0, -parent.dy(), 0)))
-      ret.insert(Dir(0, -parent.dy(), 0));
-    if ((parent.dy() == 0 || parent.dz() == 0) && is_valid(Dir(-parent.dx(), 0, 0)))
-      ret.insert(Dir(-parent.dx(), 0, 0));
+  Dir par_dir = node.incoming_dir(parent);
+  
+  ret.insert(-par_dir);
+
+  if (par_dir.order() == 2) {
+    if ((par_dir.dx() == 0 || par_dir.dy() == 0) && is_valid(node + Dir(0, 0, -par_dir.dz())))
+      ret.insert(Dir(0, 0, -par_dir.dz()));
+    if ((par_dir.dx() == 0 || par_dir.dz() == 0) && is_valid(node + Dir(0, -par_dir.dy(), 0)))
+      ret.insert(Dir(0, -par_dir.dy(), 0));
+    if ((par_dir.dy() == 0 || par_dir.dz() == 0) && is_valid(node + Dir(-par_dir.dx(), 0, 0)))
+      ret.insert(Dir(-par_dir.dx(), 0, 0));
   } 
 
-  if (parent.order() == 3) {
-    if (is_valid(Dir(-parent.dx(), -parent.dy(), 0)))
-      ret.insert(Dir(-parent.dx(), -parent.dy(), 0));
-    if (is_valid(Dir(-parent.dx(), 0, -parent.dz())))
-      ret.insert(Dir(-parent.dx(), 0, -parent.dz()));
-    if (is_valid(Dir(0, -parent.dy(), -parent.dz())))
-      ret.insert(Dir(0, -parent.dy(), -parent.dz()));
-    if (is_valid(Dir(-parent.dx(), 0, 0)))
-      ret.insert(Dir(-parent.dx(), 0, 0));
-    if (is_valid(Dir(0, -parent.dy(), 0)))
-      ret.insert(Dir(0, -parent.dy(), 0));
-    if (is_valid(Dir(0, 0, -parent.dz())))
-      ret.insert(Dir(0, 0, -parent.dz()));
+  if (par_dir.order() == 3) {
+    if (is_valid(node + Dir(-par_dir.dx(), -par_dir.dy(), 0)))
+      ret.insert(Dir(-par_dir.dx(), -par_dir.dy(), 0));
+    if (is_valid(node + Dir(-par_dir.dx(), 0, -par_dir.dz())))
+      ret.insert(Dir(-par_dir.dx(), 0, -par_dir.dz()));
+    if (is_valid(node + Dir(0, -par_dir.dy(), -par_dir.dz())))
+      ret.insert(Dir(0, -par_dir.dy(), -par_dir.dz()));
+    if (is_valid(node + Dir(-par_dir.dx(), 0, 0)))
+      ret.insert(Dir(-par_dir.dx(), 0, 0));
+    if (is_valid(node + Dir(0, -par_dir.dy(), 0)))
+      ret.insert(Dir(0, -par_dir.dy(), 0));
+    if (is_valid(node + Dir(0, 0, -par_dir.dz())))
+      ret.insert(Dir(0, 0, -par_dir.dz()));
   }
 
   return move(ret);
 }
 
-set<Dir> JPS::forced_neighbors_(const Dir & parent, function<bool(const Dir &)> is_valid) {
+set<Dir> JPS::all_neighbors(const Point & node, const Point & parent, const function<bool(const Point &)> & is_valid) {
+  // return all nodes that require expansion when moving 
+  // into unoccupied center of 3x3 box from parent
+
+  set<Dir> ret, nat, forc;
+
+  nat = JPS::natural_neighbors(node, parent, is_valid);
+  forc = JPS::forced_neighbors_fast(node, parent, is_valid);
+
+  set_union(make_move_iterator(nat.begin()), make_move_iterator(nat.end()), 
+            make_move_iterator(forc.begin()), make_move_iterator(forc.end()), 
+            inserter(ret, ret.begin()));
+
+  return move(ret);
+}
+
+set<Dir> JPS::forced_neighbors_slow(const Dir & parent, const function<bool(const Dir &)> & is_valid) {
 
   set<Dir> ret;
 
@@ -241,7 +230,9 @@ set<Dir> JPS::forced_neighbors_(const Dir & parent, function<bool(const Dir &)> 
       ret.insert(Dir(neigh));
 
   // remove natural neighbors
-  set<Dir> nat = JPS::natural_neighbors_(parent, is_valid);
+  set<Dir> nat = JPS::natural_neighbors(Point(0,0,0), Point(0,0,0)+parent, [is_valid] (const Point & p) {
+    return is_valid(Point(0,0,0).incoming_dir(p));
+  });
   set<Dir> c;
   set_difference(make_move_iterator(ret.begin()), 
                  make_move_iterator(ret.end()), 
@@ -252,46 +243,24 @@ set<Dir> JPS::forced_neighbors_(const Dir & parent, function<bool(const Dir &)> 
   return move(ret);
 }
 
-set<Dir> JPS::all_neighbors_(const Dir & parent, function<bool(const Dir &)> is_valid) {
-  // return all nodes that require expansion when moving 
-  // into unoccupied center of 3x3 box from parent
+set<Dir> JPS::forced_neighbors_fast(const Point & node, const Point & parent, const function<bool(const Point &)> & is_valid) {
 
-  set<Dir> ret, nat, forc;
-
-  nat = JPS::natural_neighbors_(parent, is_valid);
-  forc = JPS::forced_neighbors_fast(parent, is_valid);
-
-  set_union(make_move_iterator(nat.begin()), make_move_iterator(nat.end()), 
-            make_move_iterator(forc.begin()), make_move_iterator(forc.end()), 
-            inserter(ret, ret.begin()));
-
-  return move(ret);
-}
-
-set<Dir> JPS::forced_neighbors_fast(const Dir & parent, function<bool(const Dir &)> is_valid) {
-
+  Dir d = node.incoming_dir(parent);
   set<Dir> ret;
-  auto coord_change = standardize_dir(parent);
 
-  //  local frame
-  function<bool(const Dir &)> is_valid_local = [is_valid, coord_change] (const Dir & d) {
-    return is_valid(coord_change(d));
-  };
+  if (d.order() == 1)
+    ret = decode_fn_1d(node, parent, lookup1d[encode_obs_1d(node, parent, is_valid)]);
 
-  if (parent.order() == 1)
-    ret = decode_fn_1d(lookup1d[encode_obs_1d(is_valid_local)]);
+  if (d.order() == 2)
+    ret = decode_fn_2d(node, parent, lookup2d[encode_obs_2d(node, parent, is_valid)]);
 
-  if (parent.order() == 2)
-    ret = decode_fn_2d(lookup2d[encode_obs_2d(is_valid_local)]);
+  if (d.order() == 3)
+    ret = decode_fn_3d(node, parent, lookup3d[encode_obs_3d(node, parent, is_valid)]);
 
-  if (parent.order() == 3)
-    ret = decode_fn_3d(lookup3d[encode_obs_3d(is_valid_local)]);
-
-  // go back to regular frame and remove forced neighbors that are covered by obstacles
   set<Dir> ret_trans;
   for (Dir d : ret) 
-    if (is_valid(coord_change(d)))
-      ret_trans.insert(coord_change(d));
+    if (is_valid(node+d))
+      ret_trans.insert(d);
 
   return move(ret_trans);
 }
@@ -304,7 +273,7 @@ void JPS::generate_lookup_table() {
   datafile << "uint8_t const JPS::lookup1d[256] = {";
   for (uint16_t iter=0; iter!=256; ++iter) {
     set<Dir> obstacles = decode_obs_1d(uint8_t(iter));
-    set<Dir> forced = forced_neighbors_(Dir(-1,0,0), [obstacles] (const Dir & d) {return obstacles.find(d) == obstacles.end();});
+    set<Dir> forced = forced_neighbors_slow(Dir(-1,0,0), [obstacles] (const Dir & d) {return obstacles.find(d) == obstacles.end();});
     uint8_t neighbors = encode_fn_1d([forced] (const Dir & d) {return forced.find(d) != forced.end();});
     datafile << (int) neighbors;
     if (iter < 255)
@@ -315,7 +284,7 @@ void JPS::generate_lookup_table() {
   datafile << "uint16_t const JPS::lookup2d[256] = {";  
   for (uint16_t iter=0; iter!=256; ++iter) {
     set<Dir> obstacles = decode_obs_2d(uint8_t(iter));
-    set<Dir> forced = forced_neighbors_(Dir(-1,-1,0), [obstacles] (const Dir & d) {return obstacles.find(d) == obstacles.end();});
+    set<Dir> forced = forced_neighbors_slow(Dir(-1,-1,0), [obstacles] (const Dir & d) {return obstacles.find(d) == obstacles.end();});
     uint16_t neighbors = encode_fn_2d([forced] (const Dir & d) {return forced.find(d) != forced.end();});
     datafile << (int) neighbors;
     if (iter < 255)
@@ -326,7 +295,7 @@ void JPS::generate_lookup_table() {
   datafile << "uint16_t const JPS::lookup3d[64] = {";    
   for (uint16_t iter=0; iter!=64; ++iter) {
     set<Dir> obstacles = decode_obs_3d(uint8_t(iter));
-    set<Dir> forced = forced_neighbors_(Dir(-1,-1,-1), [obstacles] (const Dir & d) {return obstacles.find(d) == obstacles.end();});
+    set<Dir> forced = forced_neighbors_slow(Dir(-1,-1,-1), [obstacles] (const Dir & d) {return obstacles.find(d) == obstacles.end();});
     uint16_t neighbors = encode_fn_3d([forced] (const Dir & d) {return forced.find(d) != forced.end();});
     datafile << (int) neighbors;
     if (iter < 63)

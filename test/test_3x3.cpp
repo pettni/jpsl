@@ -21,40 +21,73 @@ TEST(TestSuite, test2D)  {
     for (int8_t dy=-1; dy !=2; ++dy)
       obs_2d.insert(Dir(dx, dy, int8_t(-1))), obs_2d.insert(Dir(dx, dy, int8_t(1)));
 
+  Point center(0,0,0);
+
   // Test 2D-1
   Dir par = {-1, 0, 0};
-  set<Dir> obs1 = obs_2d;
-  set<Dir> nn = all_neighbors_(par, [obs1] (const Dir & d) {return obs1.find(d) == obs1.end();});
+  set<Dir> obs = obs_2d;
+  set<Dir> nn = all_neighbors(center, Point(-1,0,0), [center, obs] (const Point & p) {
+    return obs.find(center.incoming_dir(p)) == obs.end();
+  });
 
   set<Dir> rhs = {{1,0,0}};
   EXPECT_EQ(nn, rhs);
 
+  // Compare forced
+  set<Dir> fn1 = forced_neighbors_slow(par, [center, obs] (const Dir & d) {return obs.find(d) == obs.end();}); 
+  set<Dir> fn2 = forced_neighbors_fast(center, Point(-1,0,0), [center, obs] (const Point & p) {
+    return obs.find(center.incoming_dir(p)) == obs.end();
+  });
+  EXPECT_EQ(fn1, fn2);
 
   // Test 2D-2
   par = {-1, 0, 0};
-  set<Dir> obs2 = obs_2d;
-  obs2.insert(Dir(0,1,0));
-  nn = all_neighbors_(par, [obs2] (const Dir & d) {return obs2.find(d) == obs2.end();});
+  obs = obs_2d;
+  obs.insert(Dir(0,1,0));
+  nn = all_neighbors(center, Point(-1,0,0), [center, obs] (const Point & p) {
+    return obs.find(center.incoming_dir(p)) == obs.end();
+  });
 
   rhs = {{1,0,0}, {1,1,0}};
   EXPECT_EQ(nn, rhs);
+  fn1 = forced_neighbors_slow(par, [center, obs] (const Dir & d) {return obs.find(d) == obs.end();}); 
+  fn2 = forced_neighbors_fast(center, Point(-1,0,0), [center, obs] (const Point & p) {
+    return obs.find(center.incoming_dir(p)) == obs.end();
+  });
+  EXPECT_EQ(fn1, fn2);
 
   // Test 2D-3 
   par = {-1, -1, 0};
-  set<Dir> obs3 = obs_2d;
-  nn = all_neighbors_(par, [obs3] (const Dir & d) {return obs3.find(d) == obs3.end();});
-
+  obs = obs_2d;
+  nn = all_neighbors(center, Point(-1,-1,0), [center, obs] (const Point & p) {
+    return obs.find(center.incoming_dir(p)) == obs.end();
+  });
   rhs = {{1,0,0}, {1,1,0}, {0,1,0}};
   EXPECT_EQ(nn, rhs);
 
+  fn1 = forced_neighbors_slow(par, [center, obs] (const Dir & d) {return obs.find(d) == obs.end();}); 
+  fn2 = forced_neighbors_fast(center, Point(-1,-1,0), [center, obs] (const Point & p) {
+    return obs.find(center.incoming_dir(p)) == obs.end();
+  });
+  EXPECT_EQ(fn1, fn2);
+
   // Test 2D-4 
   par = {-1, -1, 0};
-  set<Dir> obs4 = obs_2d;
-  obs4.insert(Dir(-1,0,0));
-  nn = all_neighbors_(par, [obs4] (const Dir & d) {return obs4.find(d) == obs4.end();});
+  obs = obs_2d;
+  obs.insert(Dir(-1,0,0));
+  nn = all_neighbors(center, Point(-1,-1,0), [center, obs] (const Point & p) {
+    return obs.find(center.incoming_dir(p)) == obs.end();
+  });
 
   rhs = {{-1,1,0}, {1,0,0}, {1,1,0}, {0,1,0}};
   EXPECT_EQ(nn, rhs);
+
+  fn1 = forced_neighbors_slow(par, [center, obs] (const Dir & d) {return obs.find(d) == obs.end();}); 
+  fn2 = forced_neighbors_fast(center, Point(-1,-1,0), [center, obs] (const Point & p) {
+    return obs.find(center.incoming_dir(p)) == obs.end();
+  });
+  EXPECT_EQ(fn1, fn2);
+
 }
 
 TEST(TestSuite, test3D) {
@@ -67,13 +100,23 @@ TEST(TestSuite, test3D) {
   // These examples are a bit conservative, they add more forced nn than necessary, not
   // all that are expected from the paper are returned
 
+  Point center(0,0,0);
+
   // Test 3D-1: expected 
   Dir par = {-1, 0, 0};
   set<Dir> obs = {{0, -1, 0}, {0, -1, 1}};
-  set<Dir> nn = all_neighbors_(par, [obs] (const Dir & d) {return obs.find(d) == obs.end();});
-
+  set<Dir> nn = all_neighbors(center, Point(-1,0,0), [center, obs] (const Point & p) {
+    return obs.find(center.incoming_dir(p)) == obs.end();
+  });
   set<Dir> rhs = {{1,0,0}, {1,-1,0}, {1, -1, 1}};
   EXPECT_EQ(nn, rhs);
+
+  set<Dir> fn1 = forced_neighbors_slow(par, [center, obs] (const Dir & d) {return obs.find(d) == obs.end();}); 
+  set<Dir> fn2 = forced_neighbors_fast(center, Point(-1,0,0), [center, obs] (const Point & p) {
+    return obs.find(center.incoming_dir(p)) == obs.end();
+  });
+  EXPECT_EQ(fn1, fn2);
+
 
   // Test 3D-2: expected {{1,0,0}, {1,1,0}, {0, 1, 0}, 
   //                   {1, -1, 0}, {1,0,1}, {1,1,1}, 
@@ -82,10 +125,18 @@ TEST(TestSuite, test3D) {
   // MISSING: {1, -1, 0}  and  {0, 1, 1} but seems fine
   par = {-1, -1, 0};
   obs = {{0, -1, 0}, {0, -1, 1}, {0, 0, 1}};
-  nn = all_neighbors_(par, [obs] (const Dir & d) {return obs.find(d) == obs.end();});
+  nn = all_neighbors(center, Point(-1,-1,0), [center, obs] (const Point & p) {
+    return obs.find(center.incoming_dir(p)) == obs.end();
+  });
 
   rhs = {{1,0,0}, {1,1,0}, {0, 1, 0}, {1,0,1}, {1,1,1}, {1, -1, 1}};
   EXPECT_EQ(nn, rhs);
+
+  fn1 = forced_neighbors_slow(par, [center, obs] (const Dir & d) {return obs.find(d) == obs.end();}); 
+  fn2 = forced_neighbors_fast(center, Point(-1,-1,0), [center, obs] (const Point & p) {
+    return obs.find(center.incoming_dir(p)) == obs.end();
+  });
+  EXPECT_EQ(fn1, fn2);
 
   // Test 3D-3: expected {{1,0,-1}, {1,1,-1}, 
   //                   {0, 1, -1}, {1, -1, -1},
@@ -95,9 +146,17 @@ TEST(TestSuite, test3D) {
   // MISSING: {1, 0, -1}, {1,1,-1}, {0,1,-1}, {1,-1,-1} but seems fine
   par = {-1, -1, -1};
   obs = {{0, -1, -1}, {0, 0, -1}};
-  nn = all_neighbors_(par, [obs] (const Dir & d) {return obs.find(d) == obs.end();});
+  nn = all_neighbors(center, Point(-1,-1,-1), [center, obs] (const Point & p) {
+    return obs.find(center.incoming_dir(p)) == obs.end();
+  });
 
   rhs = {{1,1,1}, {1,1,0}, {1,0,1}, {0,1,1},
                   {1,0,0}, {0,1,0}, {0,0,1}};
   EXPECT_EQ(nn, rhs);
+
+  fn1 = forced_neighbors_slow(par, [center, obs] (const Dir & d) {return obs.find(d) == obs.end();}); 
+  fn2 = forced_neighbors_fast(center, Point(-1,-1,-1), [center, obs] (const Point & p) {
+    return obs.find(center.incoming_dir(p)) == obs.end();
+  });
+  EXPECT_EQ(fn1, fn2);
 }
