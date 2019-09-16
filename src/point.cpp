@@ -29,6 +29,10 @@ float Point::norm() const {
 }
 
 Dir Point::incoming_dir(const Point & p) const {
+
+	if (p == *this)
+		return Dir(0,0,0);
+
 	int64_t dx = p.x_ - x_;
 	int64_t dy = p.y_ - y_;
 	int64_t dz = p.z_ - z_;

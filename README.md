@@ -2,14 +2,24 @@
 
 ## Why this one?
 
- - Faster than Kumar's algorithm, prunes more points
- - More flexible interface
+ - Optimal pruning via pre-computation (WIP)
+ - Flexible interface
+
+## Compilation
+
+```
+mkdir build && cd build
+cmake ..
+make
+```
+Then run tests with ```ctest```
 
 ## TODOs
 
  - [x] Implement JPS
  - [x] Planning function that takes function ```state_valid()```
- - [ ] Implement ```state_valid()``` for octomaps
- - [ ] Create a grid mask class that packs info into a ```uint32_t``` and uses it for obstacles and neighbors
- - [ ] Symmetrize problem (i.e. always have parent in lower 2x2)
+ - [x] Create a grid mask class that packs info into a ```uint16_t``` and uses it for obstacles and neighbors
+ - [x] Symmetrize problem (i.e. always have parent in lower 2x2)
  - [ ] Run all possible combinations of 3x3 problems, store solutions in header file
+ - [ ] Implement ```state_valid()``` for octomaps
+ - [ ] Optional buffer for ```state_valid()```

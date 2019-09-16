@@ -25,7 +25,7 @@ enable_testing()
 
 include_directories(include)
 
-add_library(jps src/jps.cpp src/point.cpp src/dir.cpp)
+add_library(jps src/jps.cpp src/point.cpp src/dir.cpp src/encodings.cpp)
 
 ############ BUILD TESTS ################
 
@@ -41,8 +41,22 @@ add_executable(test_jps test/test_jps.cpp)
 target_link_libraries(test_jps jps gtest_main)
 add_test(NAME test_jps COMMAND test_jps)
 
+add_executable(test_standardize_dir test/test_standardize_dir.cpp)
+target_link_libraries(test_standardize_dir jps gtest_main)
+add_test(NAME test_standardize_dir COMMAND test_standardize_dir)
+
+add_executable(test_encodings test/test_encodings.cpp)
+target_link_libraries(test_encodings jps gtest_main)
+add_test(NAME test_encodings COMMAND test_encodings)
+
 ############# TEMP MAIN #################
 
 add_executable(main src/main.cpp)
 
 target_link_libraries(main jps)
+
+add_executable(map_3d examples/map_3d.cpp)
+target_link_libraries(map_3d jps)
+
+add_executable(generate_lookup_table src/generate_lookup_table.cpp)
+target_link_libraries(generate_lookup_table jps)
