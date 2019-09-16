@@ -29,13 +29,17 @@ add_library(jps src/jps.cpp src/point.cpp src/dir.cpp)
 
 ############ BUILD TESTS ################
 
-add_executable(test3x3 test/test3x3.cpp)
-target_link_libraries(test3x3 jps gtest_main)
-add_test(NAME test3x3 COMMAND test3x3)
+add_executable(test_3x3 test/test_3x3.cpp)
+target_link_libraries(test_3x3 jps gtest_main)
+add_test(NAME test_3x3 COMMAND test_3x3)
 
 add_executable(test_jump test/test_jump.cpp)
 target_link_libraries(test_jump jps gtest_main)
 add_test(NAME test_jump COMMAND test_jump)
+
+add_executable(test_jps test/test_jps.cpp)
+target_link_libraries(test_jps jps gtest_main)
+add_test(NAME test_jps COMMAND test_jps)
 
 ############# TEMP MAIN #################
 

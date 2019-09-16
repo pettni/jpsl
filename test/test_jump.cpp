@@ -67,6 +67,4 @@ TEST(TestSuite, testJump)  {
 
   EXPECT_EQ(succ4, true);
   EXPECT_EQ(point4, Point({1,2,0}));
-
-
 }

@@ -30,6 +30,8 @@ namespace JPS {
 	  bool operator<(const Point &) const;
 	  float norm() const;
 
+	  Dir incoming_dir(const Point &) const;
+
 	private:
 	  int64_t x_, y_, z_;
 	};
