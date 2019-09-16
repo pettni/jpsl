@@ -23,8 +23,8 @@ TEST(TestSuite, test2D)  {
 
   // Test 2D-1
   Dir par = {-1, 0, 0};
-  set<Dir> obs = obs_2d;
-  set<Dir> nn = all_neighbors_(par, obs);
+  set<Dir> obs1 = obs_2d;
+  set<Dir> nn = all_neighbors_(par, [obs1] (const Dir & d) {return obs1.find(d) == obs1.end();});
 
   set<Dir> rhs = {{1,0,0}};
   EXPECT_EQ(nn, rhs);
@@ -32,26 +32,26 @@ TEST(TestSuite, test2D)  {
 
   // Test 2D-2
   par = {-1, 0, 0};
-  obs = obs_2d;
-  obs.insert(Dir(0,1,0));
-  nn = all_neighbors_(par, obs);
+  set<Dir> obs2 = obs_2d;
+  obs2.insert(Dir(0,1,0));
+  nn = all_neighbors_(par, [obs2] (const Dir & d) {return obs2.find(d) == obs2.end();});
 
   rhs = {{1,0,0}, {1,1,0}};
   EXPECT_EQ(nn, rhs);
 
   // Test 2D-3 
   par = {-1, -1, 0};
-  obs = {};
-  nn = all_neighbors_(par, obs_2d);
+  set<Dir> obs3 = obs_2d;
+  nn = all_neighbors_(par, [obs3] (const Dir & d) {return obs3.find(d) == obs3.end();});
 
   rhs = {{1,0,0}, {1,1,0}, {0,1,0}};
   EXPECT_EQ(nn, rhs);
 
   // Test 2D-4 
   par = {-1, -1, 0};
-  obs = obs_2d;
-  obs.insert(Dir(-1,0,0));
-  nn = all_neighbors_(par, obs);
+  set<Dir> obs4 = obs_2d;
+  obs4.insert(Dir(-1,0,0));
+  nn = all_neighbors_(par, [obs4] (const Dir & d) {return obs4.find(d) == obs4.end();});
 
   rhs = {{-1,1,0}, {1,0,0}, {1,1,0}, {0,1,0}};
   EXPECT_EQ(nn, rhs);
@@ -70,7 +70,7 @@ TEST(TestSuite, test3D) {
   // Test 3D-1: expected 
   Dir par = {-1, 0, 0};
   set<Dir> obs = {{0, -1, 0}, {0, -1, 1}};
-  set<Dir> nn = all_neighbors_(par, obs);
+  set<Dir> nn = all_neighbors_(par, [obs] (const Dir & d) {return obs.find(d) == obs.end();});
 
   set<Dir> rhs = {{1,0,0}, {1,-1,0}, {1, -1, 1}};
   EXPECT_EQ(nn, rhs);
@@ -82,7 +82,7 @@ TEST(TestSuite, test3D) {
   // MISSING: {1, -1, 0}  and  {0, 1, 1} but seems fine
   par = {-1, -1, 0};
   obs = {{0, -1, 0}, {0, -1, 1}, {0, 0, 1}};
-  nn = all_neighbors_(par, obs);
+  nn = all_neighbors_(par, [obs] (const Dir & d) {return obs.find(d) == obs.end();});
 
   rhs = {{1,0,0}, {1,1,0}, {0, 1, 0}, {1,0,1}, {1,1,1}, {1, -1, 1}};
   EXPECT_EQ(nn, rhs);
@@ -95,7 +95,7 @@ TEST(TestSuite, test3D) {
   // MISSING: {1, 0, -1}, {1,1,-1}, {0,1,-1}, {1,-1,-1} but seems fine
   par = {-1, -1, -1};
   obs = {{0, -1, -1}, {0, 0, -1}};
-  nn = all_neighbors_(par, obs);
+  nn = all_neighbors_(par, [obs] (const Dir & d) {return obs.find(d) == obs.end();});
 
   rhs = {{1,1,1}, {1,1,0}, {1,0,1}, {0,1,1},
                   {1,0,0}, {0,1,0}, {0,0,1}};

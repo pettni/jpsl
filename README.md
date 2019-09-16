@@ -20,6 +20,7 @@ Then run tests with ```ctest```
  - [x] Planning function that takes function ```state_valid()```
  - [x] Create a grid mask class that packs info into a ```uint16_t``` and uses it for obstacles and neighbors
  - [x] Symmetrize problem (i.e. always have parent in lower 2x2)
- - [ ] Run all possible combinations of 3x3 problems, store solutions in header file
+ - [x] Run all possible combinations of 3x3 problems, store solutions in lookup table
  - [ ] Implement ```state_valid()``` for octomaps
  - [ ] Optional buffer for ```state_valid()```
+ - [ ] Optimize for 2D problems

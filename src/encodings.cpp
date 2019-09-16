@@ -75,23 +75,23 @@ function<Dir(const Dir &)> JPS::standardize_dir(const Dir & d0) {
   return [] (const Dir & dir) {return Dir(0,0,0);};
 }
 
-uint8_t JPS::encode_obs_1d(const std::set<Dir> & obstacles){
+uint8_t JPS::encode_obs_1d(std::function<bool(const Dir &)> is_valid){
 	uint8_t ret = 0;
-  if (obstacles.find(Dir(0, -1, -1)) != obstacles.end())
+  if (!is_valid(Dir(0, -1, -1)))
     ret |= 1;
-  if (obstacles.find(Dir(0, 0, -1)) != obstacles.end())
+  if (!is_valid(Dir(0, 0, -1)))
     ret |= 1<<1;
-  if (obstacles.find(Dir(0, 1, -1)) != obstacles.end())
+  if (!is_valid(Dir(0, 1, -1)))
     ret |= 1<<2;
-  if (obstacles.find(Dir(0, -1, 0)) != obstacles.end())
+  if (!is_valid(Dir(0, -1, 0)))
     ret |= 1<<3;
-  if (obstacles.find(Dir(0, 1, 0)) != obstacles.end())
+  if (!is_valid(Dir(0, 1, 0)))
     ret |= 1<<4;
-  if (obstacles.find(Dir(0, -1, 1)) != obstacles.end())
+  if (!is_valid(Dir(0, -1, 1)))
     ret |= 1<<5;
-  if (obstacles.find(Dir(0, 0, 1)) != obstacles.end())
+  if (!is_valid(Dir(0, 0, 1)))
     ret |= 1<<6;
-  if (obstacles.find(Dir(0, 1, 1)) != obstacles.end())
+  if (!is_valid(Dir(0, 1, 1)))
     ret |= 1<<7;
   return ret;
 }
@@ -117,23 +117,23 @@ std::set<Dir> JPS::decode_obs_1d(uint8_t id){
   return move(ret);
 }
 
-uint8_t JPS::encode_obs_2d(const std::set<Dir> & obstacles){
+uint8_t JPS::encode_obs_2d(std::function<bool(const Dir &)> is_valid){
 	uint8_t ret = 0;
-  if (obstacles.find(Dir(-1, 0, -1)) != obstacles.end())
+  if (!is_valid(Dir(-1, 0, -1)))
     ret |= 1;
-  if (obstacles.find(Dir(0, 0, -1)) != obstacles.end())
+  if (!is_valid(Dir(0, 0, -1)))
     ret |= 1<<1;
-  if (obstacles.find(Dir(0, -1, -1)) != obstacles.end())
+  if (!is_valid(Dir(0, -1, -1)))
     ret |= 1<<2;
-  if (obstacles.find(Dir(-1, 0, 0)) != obstacles.end())
+  if (!is_valid(Dir(-1, 0, 0)))
     ret |= 1<<3;
-  if (obstacles.find(Dir(0, -1, 0)) != obstacles.end())
+  if (!is_valid(Dir(0, -1, 0)))
     ret |= 1<<4;
-  if (obstacles.find(Dir(-1, 0, 1)) != obstacles.end())
+  if (!is_valid(Dir(-1, 0, 1)))
     ret |= 1<<5;
-  if (obstacles.find(Dir(0, 0, 1)) != obstacles.end())
+  if (!is_valid(Dir(0, 0, 1)))
     ret |= 1<<6;
-  if (obstacles.find(Dir(0, -1, 1)) != obstacles.end())
+  if (!is_valid(Dir(0, -1, 1)))
     ret |= 1<<7;
  return ret;
 }
@@ -159,19 +159,19 @@ std::set<Dir> JPS::decode_obs_2d(uint8_t id){
   return move(ret);
 }
 
-uint8_t JPS::encode_obs_3d(const std::set<Dir> & obstacles){
+uint8_t JPS::encode_obs_3d(std::function<bool(const Dir &)> is_valid){
 	uint8_t ret = 0;
-  if (obstacles.find(Dir(-1, 0, -1)) != obstacles.end())
+  if (!is_valid(Dir(-1, 0, -1)))
     ret |= 1;
-  if (obstacles.find(Dir(0, 0, -1)) != obstacles.end())
+  if (!is_valid(Dir(0, 0, -1)))
     ret |= 1<<1;
-  if (obstacles.find(Dir(0, -1, -1)) != obstacles.end())
+  if (!is_valid(Dir(0, -1, -1)))
     ret |= 1<<2;
-  if (obstacles.find(Dir(-1, 0, 0)) != obstacles.end())
+  if (!is_valid(Dir(-1, 0, 0)))
     ret |= 1<<3;
-  if (obstacles.find(Dir(-1, -1, 0)) != obstacles.end())
+  if (!is_valid(Dir(-1, -1, 0)))
     ret |= 1<<4;   
-  if (obstacles.find(Dir(0, -1, 0)) != obstacles.end())
+  if (!is_valid(Dir(0, -1, 0)))
     ret |= 1<<5;
 	return ret;
 }
@@ -193,23 +193,23 @@ std::set<Dir> JPS::decode_obs_3d(uint8_t id){
   return move(ret);
 }
 
-uint8_t JPS::encode_fn_1d(const std::set<Dir> & neighbors){
+uint8_t JPS::encode_fn_1d(std::function<bool(const Dir &)> is_forced){
 	uint8_t id = 0;
-  if (neighbors.find(Dir(1,-1,-1)) != neighbors.end())
+  if (is_forced(Dir(1,-1,-1)))
     id |= 1;
-  if (neighbors.find(Dir(1,0,-1)) != neighbors.end())
+  if (is_forced(Dir(1,0,-1)))
     id |= 1<<1;
-  if (neighbors.find(Dir(1,1,-1)) != neighbors.end())
+  if (is_forced(Dir(1,1,-1)))
     id |= 1<<2;
-  if (neighbors.find(Dir(1,-1,0)) != neighbors.end())
+  if (is_forced(Dir(1,-1,0)))
     id |= 1<<3;
-  if (neighbors.find(Dir(1,1,0)) != neighbors.end())
+  if (is_forced(Dir(1,1,0)))
     id |= 1<<4;
-  if (neighbors.find(Dir(1,-1,1)) != neighbors.end())
+  if (is_forced(Dir(1,-1,1)))
     id |= 1<<5;
-  if (neighbors.find(Dir(1,0,1)) != neighbors.end())
+  if (is_forced(Dir(1,0,1)))
     id |= 1<<6;
-  if (neighbors.find(Dir(1,1,1)) != neighbors.end())
+  if (is_forced(Dir(1,1,1)))
     id |= 1<<7;
   return id;
 }
@@ -235,33 +235,33 @@ std::set<Dir> JPS::decode_fn_1d(uint8_t id){
   return move(ret);
 }
 
-uint16_t JPS::encode_fn_2d(const std::set<Dir> & neighbors){
+uint16_t JPS::encode_fn_2d(std::function<bool(const Dir &)> is_forced){
 	uint16_t id = 0;
-  if (neighbors.find(Dir(-1,1,-1)) != neighbors.end())
+  if (is_forced(Dir(-1,1,-1)))
     id |= 1;
-  if (neighbors.find(Dir(0,1,-1)) != neighbors.end())
+  if (is_forced(Dir(0,1,-1)))
     id |= 1<<1;
-  if (neighbors.find(Dir(1,1,-1)) != neighbors.end())
+  if (is_forced(Dir(1,1,-1)))
     id |= 1<<2; 
-  if (neighbors.find(Dir(1,0,-1)) != neighbors.end())
+  if (is_forced(Dir(1,0,-1)))
     id |= 1<<3;
-  if (neighbors.find(Dir(1,-1,-1)) != neighbors.end())
+  if (is_forced(Dir(1,-1,-1)))
     id |= 1<<4;
 
-  if (neighbors.find(Dir(-1,1,0)) != neighbors.end())
+  if (is_forced(Dir(-1,1,0)))
     id |= 1<<5;
-  if (neighbors.find(Dir(1,-1,0)) != neighbors.end())
+  if (is_forced(Dir(1,-1,0)))
     id |= 1<<6;
 
-  if (neighbors.find(Dir(-1,1,1)) != neighbors.end())
+  if (is_forced(Dir(-1,1,1)))
     id |= 1<<7;
-  if (neighbors.find(Dir(0,1,1)) != neighbors.end())
+  if (is_forced(Dir(0,1,1)))
     id |= 1<<8;
-  if (neighbors.find(Dir(1,1,1)) != neighbors.end())
+  if (is_forced(Dir(1,1,1)))
     id |= 1<<9;
-  if (neighbors.find(Dir(1,0,1)) != neighbors.end())
+  if (is_forced(Dir(1,0,1)))
     id |= 1<<10;
-  if (neighbors.find(Dir(1,-1,1)) != neighbors.end())
+  if (is_forced(Dir(1,-1,1)))
     id |= 1<<11;
 
   return id;
@@ -296,33 +296,33 @@ std::set<Dir> JPS::decode_fn_2d(uint16_t id){
   return move(ret);
 }
 
-uint16_t JPS::encode_fn_3d(const std::set<Dir> & neighbors){
+uint16_t JPS::encode_fn_3d(std::function<bool(const Dir &)> is_forced){
 	uint16_t id = 0;
-  if (neighbors.find(Dir(-1,1,-1)) != neighbors.end())
+  if (is_forced(Dir(-1,1,-1)))
     id |= 1;
-  if (neighbors.find(Dir(0,1,-1)) != neighbors.end())
+  if (is_forced(Dir(0,1,-1)))
     id |= 1<<1;
-  if (neighbors.find(Dir(1,1,-1)) != neighbors.end())
+  if (is_forced(Dir(1,1,-1)))
     id |= 1<<2; 
-  if (neighbors.find(Dir(1,0,-1)) != neighbors.end())
+  if (is_forced(Dir(1,0,-1)))
     id |= 1<<3;
-  if (neighbors.find(Dir(1,-1,-1)) != neighbors.end())
+  if (is_forced(Dir(1,-1,-1)))
     id |= 1<<4;
 
-  if (neighbors.find(Dir(-1,1,0)) != neighbors.end())
+  if (is_forced(Dir(-1,1,0)))
     id |= 1<<5;
-  if (neighbors.find(Dir(1,-1,0)) != neighbors.end())
+  if (is_forced(Dir(1,-1,0)))
     id |= 1<<6;
 
-  if (neighbors.find(Dir(-1,1,1)) != neighbors.end())
+  if (is_forced(Dir(-1,1,1)))
     id |= 1<<7;
-  if (neighbors.find(Dir(-1,0,1)) != neighbors.end())
+  if (is_forced(Dir(-1,0,1)))
     id |= 1<<8;
-  if (neighbors.find(Dir(-1,-1,1)) != neighbors.end())
+  if (is_forced(Dir(-1,-1,1)))
     id |= 1<<9;
-  if (neighbors.find(Dir(0,-1,1)) != neighbors.end())
+  if (is_forced(Dir(0,-1,1)))
     id |= 1<<10;
-  if (neighbors.find(Dir(1,-1,1)) != neighbors.end())
+  if (is_forced(Dir(1,-1,1)))
     id |= 1<<11;
 
   return id;

@@ -25,7 +25,7 @@ enable_testing()
 
 include_directories(include)
 
-add_library(jps src/jps.cpp src/point.cpp src/dir.cpp src/encodings.cpp)
+add_library(jps src/jps.cpp src/point.cpp src/dir.cpp src/encodings.cpp src/lookup_table.cpp)
 
 ############ BUILD TESTS ################
 
