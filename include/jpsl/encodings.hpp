@@ -1,13 +1,13 @@
-#ifndef JPS_ENC_HEADER 
-#define JPS_ENC_HEADER
+#ifndef JPSL_ENC_HEADER 
+#define JPSL_ENC_HEADER
 
 #include <functional>
 #include <set>
 
-#include "jps/point.hpp"
-#include "jps/dir.hpp"
+#include "jpsl/jpsl.hpp"
+#include "jpsl/dir.hpp"
 
-namespace JPS {
+namespace JPSL {
 
   const std::set<Dir> NEIGHBORS_3D({{-1,-1,-1}, {1,1,1}, \
                                     {-1,-1,0}, {-1,0,-1}, {0,-1,-1}, \

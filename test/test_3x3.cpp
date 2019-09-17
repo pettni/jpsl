@@ -2,12 +2,12 @@
 #include <set>
 #include "gtest/gtest.h"
 
-#include "jps/jps.hpp"
+#include "jpsl/jpsl.hpp"
 
 using namespace std;
-using namespace JPS;
+using namespace JPSL;
 
-TEST(TestSuite, test2D)  {
+TEST(test_3x3, test2D)  {
   // Examples from 
   //
   // Harabor, D., & Grastien, A. (2011). 
@@ -98,7 +98,7 @@ TEST(TestSuite, test2D)  {
 
 }
 
-TEST(TestSuite, test3D) {
+TEST(test_3x3, test3D) {
   // Examples from 
   //
   // Liu, S., Watterson, M., Mohta, K., Sun, K., Bhattacharya, S., Taylor, C. J., & Kumar, V. (2017). 

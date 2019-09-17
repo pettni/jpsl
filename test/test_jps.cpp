@@ -2,10 +2,10 @@
 #include <set>
 #include "gtest/gtest.h"
 
-#include "jps/jps.hpp"
+#include "jpsl/jpsl.hpp"
 
 using namespace std;
-using namespace JPS;
+using namespace JPSL;
 
 // Example from https://zerowidth.com/2013/a-visual-explanation-of-jump-point-search.html
 bool state_valid(const Point & p) {
@@ -18,8 +18,8 @@ bool state_valid(const Point & p) {
   return true;
 }
 
-TEST(TestSuite, solve_2d) {
-  auto[path, cost] = jps({0,0,0}, {7,0,0}, &state_valid);
+TEST(test_jps, solve_2d) {
+  auto[path, cost] = plan({0,0,0}, {7,0,0}, &state_valid);
   vector<Point> ans = {{0,0,0}, {3,3,0}, {5,3,0}, {7,1,0}, {7,0,0}};
   EXPECT_EQ(path, ans);
   EXPECT_LE(cost, 10.075);

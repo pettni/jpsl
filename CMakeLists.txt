@@ -1,63 +1,75 @@
-cmake_minimum_required(VERSION 2.8.3)
-project(jps)
+cmake_minimum_required(VERSION 3.1.0)
+project(jpsl)
 
 add_compile_options(-std=c++17)
-set(CMAKE_CXX_FLAGS "-g -O3 -s -DNDEBUG -Wall")   # release
-# set(CMAKE_CXX_FLAGS "-g -Wall")                 # debug
-
-########## DOWNLOAD GTEST ############
-
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG        release-1.8.0
-)
-
-FetchContent_GetProperties(googletest)
-if(NOT googletest_POPULATED)
-  FetchContent_Populate(googletest)
-  add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
-endif()
-
-enable_testing()
+# set(CMAKE_CXX_FLAGS "-g -O3 -s -DNDEBUG -Wall")   # release
+set(CMAKE_CXX_FLAGS "-g -Wall")                 # debug
 
 ########### BUILD LIB ################
 
 include_directories(include)
+add_library(jpsl src/jpsl.cpp src/point.cpp src/dir.cpp src/encodings.cpp src/lookup_table.cpp)
 
-add_library(jps src/jps.cpp src/point.cpp src/dir.cpp src/encodings.cpp src/lookup_table.cpp)
+########### TESTING ############
 
-############ BUILD TESTS ################
+# Download GTest
+configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+  RESULT_VARIABLE result
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+if(result)
+  message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+endif()
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+  RESULT_VARIABLE result
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+if(result)
+  message(FATAL_ERROR "Build step for googletest failed: ${result}")
+endif()
 
+add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
+                 ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
+                 EXCLUDE_FROM_ALL)
+
+find_package(GTest)
+enable_testing()
+
+# Build tests
 add_executable(test_3x3 test/test_3x3.cpp)
-target_link_libraries(test_3x3 jps gtest_main)
-add_test(NAME test_3x3 COMMAND test_3x3)
+target_link_libraries(test_3x3 jpsl gtest_main)
+gtest_discover_tests(test_3x3)
 
 add_executable(test_jump test/test_jump.cpp)
-target_link_libraries(test_jump jps gtest_main)
-add_test(NAME test_jump COMMAND test_jump)
+target_link_libraries(test_jump jpsl gtest_main)
+gtest_discover_tests(test_jump)
 
 add_executable(test_jps test/test_jps.cpp)
-target_link_libraries(test_jps jps gtest_main)
-add_test(NAME test_jps COMMAND test_jps)
+target_link_libraries(test_jps jpsl gtest_main)
+gtest_discover_tests(test_jps)
 
 add_executable(test_standardize_dir test/test_standardize_dir.cpp)
-target_link_libraries(test_standardize_dir jps gtest_main)
-add_test(NAME test_standardize_dir COMMAND test_standardize_dir)
+target_link_libraries(test_standardize_dir jpsl gtest_main)
+gtest_discover_tests(test_standardize_dir)
 
 add_executable(test_encodings test/test_encodings.cpp)
-target_link_libraries(test_encodings jps gtest_main)
-add_test(NAME test_encodings COMMAND test_encodings)
+target_link_libraries(test_encodings jpsl gtest_main)
+gtest_discover_tests(test_encodings)
 
-############# TEMP MAIN #################
-
-add_executable(main src/main.cpp)
-
-target_link_libraries(main jps)
+############# EXECUTABLES #################
 
 add_executable(map_3d examples/map_3d.cpp)
-target_link_libraries(map_3d jps)
+target_link_libraries(map_3d jpsl)
 
 add_executable(generate_lookup_table src/generate_lookup_table.cpp)
-target_link_libraries(generate_lookup_table jps)
+target_link_libraries(generate_lookup_table jpsl)
+
+########### INSTALL ##################
+
+install(TARGETS jpsl 
+        ARCHIVE DESTINATION lib)
+
+install(FILES "include/jpsl/jpsl.hpp" 
+              "include/jpsl/point.hpp"
+              "include/jpsl/encodings.hpp"
+              "include/jpsl/dir.hpp"
+        DESTINATION "include/jpsl")

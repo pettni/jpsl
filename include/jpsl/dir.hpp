@@ -1,11 +1,11 @@
-#ifndef JPS_DIR_HEADER 
-#define JPS_DIR_HEADER
+#ifndef JPSL_DIR_HEADER 
+#define JPSL_DIR_HEADER
 
 #include <stdint.h>
 #include <iostream>
 #include <math.h>
 
-namespace JPS {
+namespace JPSL {
 
   class Dir {
   public:
@@ -29,7 +29,7 @@ namespace JPS {
     int8_t dx_, dy_, dz_;
   };
 
-  inline std::ostream& operator<<(std::ostream& os, const JPS::Dir & d) {
+  inline std::ostream& operator<<(std::ostream& os, const JPSL::Dir & d) {
     os << "[" << (int) d.dx() << "," << (int) d.dy() << "," << (int) d.dz() << "]";
     return os;
   }

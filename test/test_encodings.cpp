@@ -2,12 +2,13 @@
 #include <set>
 #include "gtest/gtest.h"
 
-#include "jps/jps.hpp"
+#include "jpsl/jpsl.hpp"
+#include "jpsl/encodings.hpp"
 
 using namespace std;
-using namespace JPS;
+using namespace JPSL;
 
-TEST(TestSuite, test_encodings) {
+TEST(test_encodings, test_encodings) {
 
   for (uint16_t prob=0; prob != (1<<7); ++prob) {
     set<Dir> dec = decode_obs_1d(prob);

@@ -1,14 +1,14 @@
-#ifndef JPS_POINT_HEADER 
-#define JPS_POINT_HEADER
+#ifndef JPSL_POINT_HEADER 
+#define JPSL_POINT_HEADER
 
 #include <stdint.h>
 #include <iostream>
 #include <math.h>
 #include <tuple>
 
-#include "jps/dir.hpp"
+#include "jpsl/dir.hpp"
 
-namespace JPS {
+namespace JPSL {
 
   class Point {
   public:
@@ -37,7 +37,7 @@ namespace JPS {
     int64_t x_, y_, z_;
   };
 
-  inline std::ostream& operator<<(std::ostream& os, const JPS::Point& p) {
+  inline std::ostream& operator<<(std::ostream& os, const JPSL::Point& p) {
       os << "[" << (int) p.x() << "," << (int) p.y() << "," << (int) p.z() << "]";
       return os;
   }

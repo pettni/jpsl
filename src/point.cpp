@@ -1,7 +1,7 @@
-#include "jps/point.hpp"
+#include "jpsl/jpsl.hpp"
 
 using namespace std;
-using namespace JPS;
+using namespace JPSL;
 
 Point::Point(int64_t x, int64_t y, int64_t z) : x_(x), y_(y), z_(z) {}
 

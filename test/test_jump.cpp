@@ -2,10 +2,10 @@
 #include <set>
 #include "gtest/gtest.h"
 
-#include "jps/jps.hpp"
+#include "jpsl/jpsl.hpp"
 
 using namespace std;
-using namespace JPS;
+using namespace JPSL;
 
 bool is_valid1(const Point & p) {
   // left figure
@@ -39,7 +39,7 @@ bool is_valid2(const Point & p) {
 }
 
 
-TEST(TestSuite, testJump)  {
+TEST(test_jump, testJump)  {
   // Examples from 
   //
   // Harabor, D., & Grastien, A. (2011). 

@@ -1,7 +1,7 @@
-#include "jps/dir.hpp"
+#include "jpsl/dir.hpp"
 
 using namespace std;
-using namespace JPS;
+using namespace JPSL;
 
 Dir::Dir(uint8_t data) : dx_(data % 3 - 1), dy_((data/3)%3 - 1), dz_((data/9)%3 - 1) {}
 

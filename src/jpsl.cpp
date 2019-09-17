@@ -1,9 +1,10 @@
-#include "jps/jps.hpp"
+#include "jpsl/jpsl.hpp"
+#include "jpsl/encodings.hpp"
 
 using namespace std;
-using namespace JPS;
+using namespace JPSL;
 
-pair<vector<Point>, float> JPS::jps(Point start, Point goal, const function<bool(const Point &)> & state_valid) {
+pair<vector<Point>, float> JPSL::plan(Point start, Point goal, const function<bool(const Point &)> & state_valid) {
 
   // map that remembers path
   map<Point, Point> parents;
@@ -65,12 +66,12 @@ pair<vector<Point>, float> JPS::jps(Point start, Point goal, const function<bool
   return {vector<Point>(), -1};
 }
 
-std::set<Point> JPS::successors(const Point & node, const Point & parent, const Point & goal, const function<bool(const Point &)> & state_valid) {
+std::set<Point> JPSL::successors(const Point & node, const Point & parent, const Point & goal, const function<bool(const Point &)> & state_valid) {
 
   set<Point> ret;
 
   const set<Dir> jump_dirs = (node==parent) 
-    ? JPS::NEIGHBORS_3D                       // no parent, all directions
+    ? JPSL::NEIGHBORS_3D                       // no parent, all directions
     : all_neighbors(node, parent, state_valid);  // jump pruned directions
 
   for (Dir d : jump_dirs) {
@@ -82,7 +83,7 @@ std::set<Point> JPS::successors(const Point & node, const Point & parent, const 
   return move(ret);
 }
 
-pair<bool, Point> JPS::jump(const Point & p, const Dir & d, const Point & goal, const function<bool(const Point &)> & state_valid) {
+pair<bool, Point> JPSL::jump(const Point & p, const Dir & d, const Point & goal, const function<bool(const Point &)> & state_valid) {
 
   if (!state_valid(p))  // can't jump from here
     return {false, p};
@@ -155,7 +156,7 @@ pair<bool, Point> JPS::jump(const Point & p, const Dir & d, const Point & goal, 
   return {false, p};
 }
 
-set<Dir> JPS::natural_neighbors(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
+set<Dir> JPSL::natural_neighbors(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
   set<Dir> ret;
 
   Dir par_dir = node.direction_to(parent);
@@ -189,14 +190,14 @@ set<Dir> JPS::natural_neighbors(const Point & node, const Point & parent, const 
   return move(ret);
 }
 
-set<Dir> JPS::all_neighbors(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
+set<Dir> JPSL::all_neighbors(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
   // return all nodes that require expansion when moving 
   // into unoccupied center of 3x3 box from parent
 
   set<Dir> ret, nat, forc;
 
-  nat = JPS::natural_neighbors(node, parent, state_valid);
-  forc = JPS::forced_neighbors_fast(node, parent, state_valid);
+  nat = JPSL::natural_neighbors(node, parent, state_valid);
+  forc = JPSL::forced_neighbors_fast(node, parent, state_valid);
 
   set_union(make_move_iterator(nat.begin()), make_move_iterator(nat.end()), 
             make_move_iterator(forc.begin()), make_move_iterator(forc.end()), 
@@ -205,7 +206,7 @@ set<Dir> JPS::all_neighbors(const Point & node, const Point & parent, const func
   return move(ret);
 }
 
-set<Dir> JPS::forced_neighbors_fast(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
+set<Dir> JPSL::forced_neighbors_fast(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
 
   Dir d = node.direction_to(parent);
   set<Dir> ret;
@@ -230,7 +231,7 @@ set<Dir> JPS::forced_neighbors_fast(const Point & node, const Point & parent, co
   return move(ret_trans);
 }
 
-std::set<Dir> JPS::forced_neighbors_fast_1d(const Point & node, const Point & parent, const std::function<bool(const Point &)> & state_valid) {
+std::set<Dir> JPSL::forced_neighbors_fast_1d(const Point & node, const Point & parent, const std::function<bool(const Point &)> & state_valid) {
   Dir d_parent = node.direction_to(parent);
 
   set<Dir> ret;
@@ -253,7 +254,7 @@ std::set<Dir> JPS::forced_neighbors_fast_1d(const Point & node, const Point & pa
   return move(ret);
 }
 
-bool JPS::has_forced_neighbor(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
+bool JPSL::has_forced_neighbor(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
 
   set<Dir> ret;
 
@@ -277,7 +278,7 @@ bool JPS::has_forced_neighbor(const Point & node, const Point & parent, const fu
   return false;
 }
 
-bool JPS::has_forced_neighbor_fast_1d(const Point & node, const Point & parent, const std::function<bool(const Point &)> & state_valid) {
+bool JPSL::has_forced_neighbor_fast_1d(const Point & node, const Point & parent, const std::function<bool(const Point &)> & state_valid) {
   Dir d_parent = node.direction_to(parent);
 
   set<Dir> ret;
@@ -300,7 +301,7 @@ bool JPS::has_forced_neighbor_fast_1d(const Point & node, const Point & parent, 
   return false;
 }
 
-set<Dir> JPS::forced_neighbors_slow(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
+set<Dir> JPSL::forced_neighbors_slow(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
 
   Dir d_parent = node.direction_to(parent);
 
@@ -309,7 +310,7 @@ set<Dir> JPS::forced_neighbors_slow(const Point & node, const Point & parent, co
   // define valid nodes in the box
   map<Dir, float> dist;
   vector<Dir> remaining;
-  for (Dir d : JPS::NEIGHBORS_3D) {
+  for (Dir d : JPSL::NEIGHBORS_3D) {
     if (state_valid(node + d)) {        
       dist[d] = 10;
       remaining.push_back(d);
@@ -335,7 +336,7 @@ set<Dir> JPS::forced_neighbors_slow(const Point & node, const Point & parent, co
       ret.insert(Dir(neigh));
 
   // remove natural neighbors
-  set<Dir> nat = JPS::natural_neighbors(node, parent, state_valid);
+  set<Dir> nat = JPSL::natural_neighbors(node, parent, state_valid);
   set<Dir> c;
   set_difference(make_move_iterator(ret.begin()), 
                  make_move_iterator(ret.end()), 

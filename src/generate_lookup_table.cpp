@@ -1,10 +1,11 @@
 #include <iostream>
 #include <fstream>
 
-#include "jps/jps.hpp"
+#include "jpsl/jpsl.hpp"
+#include "jpsl/encodings.hpp"
 
 using namespace std;
-using namespace JPS;
+using namespace JPSL;
 
 int main(int argc, char const *argv[]) {
 

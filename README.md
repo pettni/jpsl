@@ -1,20 +1,21 @@
-# 3D Jump-Point Search
+# Jump Point Search Library
 
-## Why this one?
+C++ implementation of the JPS path-finding algorithm in three dimensions.  
 
- - Optimal pruning via pre-computed lookup tables
- - Flexible interface via ```state_valid``` function
+ - Flexible interface by implementing a custom ```bool state_valid(const JPSL::Point &)``` function
+ - Non-forced neighbors are pruned by solving a local shortest-path problem
 
-## Compilation
+# Compilation and Installation
 
 ```
 mkdir build && cd build
 cmake ..
 make
+make test          # optional run tests 
+sudo make install  # optional
 ```
-Run tests with ```ctest```
 
-## TODOs
+# Roadmap
 
  - [x] Implement JPS
  - [x] Planning function that takes function ```state_valid()```
@@ -24,5 +25,6 @@ Run tests with ```ctest```
  - [ ] Implement ```state_valid()``` for Octomap
  - [ ] Optional buffer for ```state_valid()```
  - [ ] More testing to make sure fast neighbor code is correct
- - [ ] Make things iterators instead of returning ```std::set```s
+ - [ ] Make things iterators instead of returning ```std::set```
+ - [ ] Easy switch between A*, JPS, Bounded JPS
  - [ ] Algos that are optimized for 2D problems

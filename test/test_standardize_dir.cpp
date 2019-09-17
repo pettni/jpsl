@@ -2,12 +2,13 @@
 #include <set>
 #include "gtest/gtest.h"
 
-#include "jps/jps.hpp"
+#include "jpsl/jpsl.hpp"
+#include "jpsl/encodings.hpp"
 
 using namespace std;
-using namespace JPS;
+using namespace JPSL;
 
-TEST(TestSuite, test_standardize) {
+TEST(test_standardize, test_standardize) {
 
   for (Dir d : NEIGHBORS_3D) {
     cout << d << endl;

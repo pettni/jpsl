@@ -3,10 +3,10 @@
 #include <functional>
 #include <chrono>
 
-#include "jps/jps.hpp"
+#include "jpsl/jpsl.hpp"
 
 using namespace std;
-using namespace JPS;
+using namespace JPSL;
 
 bool is_valid(const Point & p, const vector<bool> & obs, 
               const uint64_t & xsize, const uint64_t & ysize, const uint64_t & zsize) {
@@ -55,7 +55,7 @@ int main(int argc, char const *argv[]) {
 
   auto t0 = chrono::steady_clock::now();
 
-  auto[path, length] = jps(start, goal, std::bind(is_valid, placeholders::_1, obstacles, xsize, ysize, zsize));
+  auto[path, length] = plan(start, goal, std::bind(is_valid, placeholders::_1, obstacles, xsize, ysize, zsize));
 
   auto t1 = chrono::steady_clock::now();
 
