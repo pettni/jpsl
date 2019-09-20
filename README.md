@@ -4,6 +4,7 @@ C++ implementation of the [jump-point search  path-finding algorithm](http://use
 
  - Flexible interface by implementing a custom ```bool state_valid(const JPSL::Point &)``` function
  - Forced neighbors are identified by solving a local shortest-path problem, leading to maximal pruning
+ - Solutions to local shortest-path problems are stored in a lookup table for speed
 
 # Compilation and Installation
 
