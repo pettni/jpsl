@@ -7,6 +7,7 @@
 #include <queue>
 #include <functional>
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <stdint.h>
 #include <iostream>
@@ -34,7 +35,6 @@ namespace JPSL {
   
   std::set<Dir> forced_neighbors_fast_1d(const Point &, const Point &, const std::function<bool(const Point &)> &);
   bool has_forced_neighbor_fast_1d(const Point &, const Point &, const std::function<bool(const Point &)> &);
-
 }
 
 #endif

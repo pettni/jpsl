@@ -41,7 +41,16 @@ namespace JPSL {
       os << "[" << (int) p.x() << "," << (int) p.y() << "," << (int) p.z() << "]";
       return os;
   }
-
 }
+
+namespace std {
+  template <>
+  struct hash<JPSL::Point> {
+    size_t operator()(const JPSL::Point & p) const {
+      return hash<int64_t>()(p.x()) ^ hash<int64_t>()(p.y()) ^ hash<int64_t>()(p.z());
+    }
+  };
+}
+
 
 #endif

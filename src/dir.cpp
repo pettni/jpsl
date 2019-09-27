@@ -5,7 +5,7 @@ using namespace JPSL;
 
 Dir::Dir(uint8_t data) : dx_(data % 3 - 1), dy_((data/3)%3 - 1), dz_((data/9)%3 - 1) {}
 
-Dir::operator int8_t() const {return dx_+1 + 3*(dy_+1) + 9*(dz_+1);}
+Dir::operator uint8_t() const {return dx_+1 + 3*(dy_+1) + 9*(dz_+1);}
 
 Dir::Dir(int8_t dx, int8_t dy, int8_t dz) : dx_(dx), dy_(dy), dz_(dz) {}
 

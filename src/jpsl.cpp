@@ -7,7 +7,7 @@ using namespace JPSL;
 pair<vector<Point>, float> JPSL::plan(Point start, Point goal, const function<bool(const Point &)> & state_valid) {
 
   // map that remembers path
-  map<Point, Point> parents;
+  unordered_map<Point, Point> parents;
 
   // priority queue with euclidean distance to target
   auto astar_cmp = [goal] (const ASNode & n1, const ASNode & n2) {
@@ -308,7 +308,7 @@ set<Dir> JPSL::forced_neighbors_slow(const Point & node, const Point & parent, c
   set<Dir> ret;
 
   // define valid nodes in the box
-  map<Dir, float> dist;
+  unordered_map<Dir, float> dist;
   vector<Dir> remaining;
   for (Dir d : JPSL::NEIGHBORS_3D) {
     if (state_valid(node + d)) {        
