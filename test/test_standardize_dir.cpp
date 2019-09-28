@@ -11,7 +11,6 @@ using namespace JPSL;
 TEST(test_standardize, test_standardize) {
 
   for (Dir d : NEIGHBORS_3D) {
-    cout << d << endl;
     auto cchange = standardize_dir(d);
 
     // Expect d to be mapped to default direction

@@ -2,14 +2,14 @@
 #define JPSL_ENC_HEADER
 
 #include <functional>
-#include <set>
+#include <unordered_set>
 
 #include "jpsl/jpsl.hpp"
 #include "jpsl/dir.hpp"
 
 namespace JPSL {
 
-  const std::set<Dir> NEIGHBORS_3D({{-1,-1,-1}, {1,1,1}, \
+  const std::unordered_set<Dir> NEIGHBORS_3D({{-1,-1,-1}, {1,1,1}, \
                                     {-1,-1,0}, {-1,0,-1}, {0,-1,-1}, \
                                     {-1,0,0}, {0,-1,0}, {0,0,-1}, \
                                     {-1,1,0}, {-1,0,1}, {0,-1,1}, \
@@ -19,9 +19,9 @@ namespace JPSL {
                                     {0,0,1}, {0,1,0}, {1,0,0}, \
                                     {0,1,1}, {1,0,1}, {1,1,0}});
 
-  const std::set<Dir> NIEGHBORS1D_DX({{0,1,1}, {0,1,0}, {0,1,-1}, {0,0,-1}, {0,-1,-1}, {0,-1,0}, {0,-1,1}, {0,0,1}});
-  const std::set<Dir> NIEGHBORS1D_DY({{1,0,1}, {1,0,0}, {1,0,-1}, {0,0,-1}, {-1,0,-1}, {-1,0,0}, {-1,0,1}, {0,0,1}});
-  const std::set<Dir> NIEGHBORS1D_DZ({{1,1,0}, {1,0,0}, {1,-1,0}, {0,-1,0}, {-1,-1,0}, {-1,0,0}, {-1,1,0}, {0,1,0}});
+  const std::unordered_set<Dir> NIEGHBORS1D_DX({{0,1,1}, {0,1,0}, {0,1,-1}, {0,0,-1}, {0,-1,-1}, {0,-1,0}, {0,-1,1}, {0,0,1}});
+  const std::unordered_set<Dir> NIEGHBORS1D_DY({{1,0,1}, {1,0,0}, {1,0,-1}, {0,0,-1}, {-1,0,-1}, {-1,0,0}, {-1,0,1}, {0,0,1}});
+  const std::unordered_set<Dir> NIEGHBORS1D_DZ({{1,1,0}, {1,0,0}, {1,-1,0}, {0,-1,0}, {-1,-1,0}, {-1,0,0}, {-1,1,0}, {0,1,0}});
 
   extern uint8_t const lookup1d[256];
   extern uint16_t const lookup2d[256];
@@ -55,18 +55,18 @@ namespace JPSL {
   uint8_t encode_obs_2d(const Point &, const Point &, const std::function<bool(const Point &)> &);
   uint8_t encode_obs_3d(const Point &, const Point &, const std::function<bool(const Point &)> &);
 
-  std::set<Dir> decode_fn_1d(const Point &, const Point &, const uint8_t &);
-  std::set<Dir> decode_fn_2d(const Point &, const Point &, const uint16_t &);
-  std::set<Dir> decode_fn_3d(const Point &, const Point &, const uint16_t &);
+  std::unordered_set<Dir> decode_fn_1d(const Point &, const Point &, const uint8_t &);
+  std::unordered_set<Dir> decode_fn_2d(const Point &, const Point &, const uint16_t &);
+  std::unordered_set<Dir> decode_fn_3d(const Point &, const Point &, const uint16_t &);
 
   // inverse encoding and decoding for lookup table generation
-  std::set<Dir> decode_obs_1d(const uint8_t &);
-  std::set<Dir> decode_obs_2d(const uint8_t &);
-  std::set<Dir> decode_obs_3d(const uint8_t &);
+  std::unordered_set<Dir> decode_obs_1d(const uint8_t &);
+  std::unordered_set<Dir> decode_obs_2d(const uint8_t &);
+  std::unordered_set<Dir> decode_obs_3d(const uint8_t &);
 
-  uint8_t encode_fn_1d(const std::set<Dir> &);
-  uint16_t encode_fn_2d(const std::set<Dir> &);
-  uint16_t encode_fn_3d(const std::set<Dir> &);
+  uint8_t encode_fn_1d(const std::unordered_set<Dir> &);
+  uint16_t encode_fn_2d(const std::unordered_set<Dir> &);
+  uint16_t encode_fn_3d(const std::unordered_set<Dir> &);
 
 }
 

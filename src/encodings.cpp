@@ -95,7 +95,7 @@ Dir(*JPSL::standardize_dir(const Dir & d0))(const Dir &) {
   return &fnd_id;
 }
 
-uint8_t JPSL::encode_obs_1d(const Point & node, const Point & parent, const std::function<bool(const Point &)> & state_valid) {
+uint8_t JPSL::encode_obs_1d(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
   Dir (*cchange)(const Dir & dir) = standardize_dir(node.direction_to(parent));
 
   uint8_t ret = 0;
@@ -118,7 +118,7 @@ uint8_t JPSL::encode_obs_1d(const Point & node, const Point & parent, const std:
   return ret;
 }
 
-uint8_t JPSL::encode_obs_2d(const Point & node, const Point & parent, const std::function<bool(const Point &)> & state_valid) {
+uint8_t JPSL::encode_obs_2d(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
   Dir (*cchange)(const Dir & dir) = standardize_dir(node.direction_to(parent));
 
   uint8_t ret = 0;
@@ -141,7 +141,7 @@ uint8_t JPSL::encode_obs_2d(const Point & node, const Point & parent, const std:
  return ret;
 }
 
-uint8_t JPSL::encode_obs_3d(const Point & node, const Point & parent, const std::function<bool(const Point &)> & state_valid) {
+uint8_t JPSL::encode_obs_3d(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
   Dir (*cchange)(const Dir & dir) = standardize_dir(node.direction_to(parent));
   
   uint8_t ret = 0;
@@ -160,8 +160,8 @@ uint8_t JPSL::encode_obs_3d(const Point & node, const Point & parent, const std:
   return ret;
 }
 
-std::set<Dir> JPSL::decode_obs_1d(const uint8_t & id){
-  std::set<Dir> ret;
+unordered_set<Dir> JPSL::decode_obs_1d(const uint8_t & id){
+  unordered_set<Dir> ret;
   if (id & 1)
     ret.insert(Dir(0,-1,-1));
   if (id & (1<<1))
@@ -181,8 +181,8 @@ std::set<Dir> JPSL::decode_obs_1d(const uint8_t & id){
   return move(ret);
 }
 
-std::set<Dir> JPSL::decode_obs_2d(const uint8_t & id){
-  std::set<Dir> ret;
+unordered_set<Dir> JPSL::decode_obs_2d(const uint8_t & id){
+  unordered_set<Dir> ret;
   if (id & 1)
     ret.insert(Dir(-1,0,-1));
   if (id & (1<<1))
@@ -202,8 +202,8 @@ std::set<Dir> JPSL::decode_obs_2d(const uint8_t & id){
   return move(ret);
 }
 
-std::set<Dir> JPSL::decode_obs_3d(const uint8_t & id){
-  std::set<Dir> ret;
+unordered_set<Dir> JPSL::decode_obs_3d(const uint8_t & id){
+  unordered_set<Dir> ret;
   if (id & 1)
     ret.insert(Dir(-1,0,-1));
   if (id & (1<<1))
@@ -219,7 +219,7 @@ std::set<Dir> JPSL::decode_obs_3d(const uint8_t & id){
   return move(ret);
 }
 
-uint8_t JPSL::encode_fn_1d(const std::set<Dir> & fn_set){
+uint8_t JPSL::encode_fn_1d(const unordered_set<Dir> & fn_set){
   uint8_t id = 0;
   if (fn_set.find(Dir(1,-1,-1)) != fn_set.end())
     id |= 1;
@@ -240,10 +240,10 @@ uint8_t JPSL::encode_fn_1d(const std::set<Dir> & fn_set){
   return id;
 }
 
-std::set<Dir> JPSL::decode_fn_1d(const Point & node, const Point & parent, const uint8_t & id){
+unordered_set<Dir> JPSL::decode_fn_1d(const Point & node, const Point & parent, const uint8_t & id){
   Dir (*cchange)(const Dir & dir) = standardize_dir(node.direction_to(parent));
 
-  std::set<Dir> ret;
+  unordered_set<Dir> ret;
   if (id & 1)
     ret.insert(cchange(Dir(1,-1,-1)));
   if (id & (1<<1))
@@ -263,7 +263,7 @@ std::set<Dir> JPSL::decode_fn_1d(const Point & node, const Point & parent, const
   return move(ret);
 }
 
-uint16_t JPSL::encode_fn_2d(const std::set<Dir> & fn_set){
+uint16_t JPSL::encode_fn_2d(const unordered_set<Dir> & fn_set){
   uint16_t id = 0;
   if (fn_set.find(Dir(-1,1,-1)) != fn_set.end())
     id |= 1;
@@ -295,10 +295,10 @@ uint16_t JPSL::encode_fn_2d(const std::set<Dir> & fn_set){
   return id;
 }
 
-std::set<Dir> JPSL::decode_fn_2d(const Point & node, const Point & parent, const uint16_t & id){
+unordered_set<Dir> JPSL::decode_fn_2d(const Point & node, const Point & parent, const uint16_t & id){
   Dir (*cchange)(const Dir & dir) = standardize_dir(node.direction_to(parent));
 
-  std::set<Dir> ret;
+  unordered_set<Dir> ret;
   if (id & 1)
     ret.insert(cchange(Dir(-1,1,-1)));
   if (id & (1<<1))
@@ -326,7 +326,7 @@ std::set<Dir> JPSL::decode_fn_2d(const Point & node, const Point & parent, const
   return move(ret);
 }
 
-uint16_t JPSL::encode_fn_3d(const std::set<Dir> & fn_set){
+uint16_t JPSL::encode_fn_3d(const unordered_set<Dir> & fn_set){
   uint16_t id = 0;
   if (fn_set.find(Dir(-1,1,-1)) != fn_set.end())
     id |= 1;
@@ -358,10 +358,10 @@ uint16_t JPSL::encode_fn_3d(const std::set<Dir> & fn_set){
   return id;
 }
 
-std::set<Dir> JPSL::decode_fn_3d(const Point & node, const Point & parent, const uint16_t & id){
+unordered_set<Dir> JPSL::decode_fn_3d(const Point & node, const Point & parent, const uint16_t & id){
   Dir (*cchange)(const Dir & dir) = standardize_dir(node.direction_to(parent));
 
-  std::set<Dir> ret;
+  unordered_set<Dir> ret;
   if (id & 1)
     ret.insert(cchange(Dir(-1,1,-1)));
   if (id & (1<<1))

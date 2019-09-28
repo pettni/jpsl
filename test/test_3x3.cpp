@@ -1,5 +1,5 @@
 #include <iostream>
-#include <set>
+#include <unordered_set>
 #include "gtest/gtest.h"
 
 #include "jpsl/jpsl.hpp"
@@ -16,7 +16,7 @@ TEST(test_3x3, test2D)  {
   //
   // we block z=-1 and z=1 to force a 2D problem
 
-  set<Dir> obs_2d;
+  unordered_set<Dir> obs_2d;
   for (int8_t dx=-1; dx != 2; ++dx)
     for (int8_t dy=-1; dy !=2; ++dy)
       obs_2d.insert(Dir(dx, dy, int8_t(-1))), obs_2d.insert(Dir(dx, dy, int8_t(1)));
@@ -25,19 +25,19 @@ TEST(test_3x3, test2D)  {
 
   // Test 2D-1
   Dir par = {-1, 0, 0};
-  set<Dir> obs = obs_2d;
-  set<Dir> nn = all_neighbors(center, Point(-1,0,0), [center, obs] (const Point & p) {
+  unordered_set<Dir> obs = obs_2d;
+  unordered_set<Dir> nn = all_neighbors(center, Point(-1,0,0), [center, obs] (const Point & p) {
     return obs.find(center.direction_to(p)) == obs.end();
   });
 
-  set<Dir> rhs = {{1,0,0}};
+  unordered_set<Dir> rhs = {{1,0,0}};
   EXPECT_EQ(nn, rhs);
 
   // Compare forced
-  set<Dir> fn1 = forced_neighbors_slow(center, Point(-1,0,0), [center, obs] (const Point & p) {
+  unordered_set<Dir> fn1 = forced_neighbors_slow(center, Point(-1,0,0), [center, obs] (const Point & p) {
     return obs.find(center.direction_to(p)) == obs.end();
   });    
-  set<Dir> fn2 = forced_neighbors_fast(center, Point(-1,0,0), [center, obs] (const Point & p) {
+  unordered_set<Dir> fn2 = forced_neighbors_fast(center, Point(-1,0,0), [center, obs] (const Point & p) {
     return obs.find(center.direction_to(p)) == obs.end();
   });
   EXPECT_EQ(fn1, fn2);
@@ -112,17 +112,17 @@ TEST(test_3x3, test3D) {
 
   // Test 3D-1: expected 
   Dir par = {-1, 0, 0};
-  set<Dir> obs = {{0, -1, 0}, {0, -1, 1}};
-  set<Dir> nn = all_neighbors(center, Point(-1,0,0), [center, obs] (const Point & p) {
+  unordered_set<Dir> obs = {{0, -1, 0}, {0, -1, 1}};
+  unordered_set<Dir> nn = all_neighbors(center, Point(-1,0,0), [center, obs] (const Point & p) {
     return obs.find(center.direction_to(p)) == obs.end();
   });
-  set<Dir> rhs = {{1,0,0}, {1,-1,0}, {1, -1, 1}};
+  unordered_set<Dir> rhs = {{1,0,0}, {1,-1,0}, {1, -1, 1}};
   EXPECT_EQ(nn, rhs);
 
-  set<Dir> fn1 = forced_neighbors_slow(center, Point(-1,0,0), [center, obs] (const Point & p) {
+  unordered_set<Dir> fn1 = forced_neighbors_slow(center, Point(-1,0,0), [center, obs] (const Point & p) {
     return obs.find(center.direction_to(p)) == obs.end();
   });    
-  set<Dir> fn2 = forced_neighbors_fast(center, Point(-1,0,0), [center, obs] (const Point & p) {
+  unordered_set<Dir> fn2 = forced_neighbors_fast(center, Point(-1,0,0), [center, obs] (const Point & p) {
     return obs.find(center.direction_to(p)) == obs.end();
   });
   EXPECT_EQ(fn1, fn2);

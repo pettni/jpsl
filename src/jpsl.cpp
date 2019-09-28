@@ -37,7 +37,7 @@ pair<vector<Point>, float> JPSL::plan(Point start, Point goal, const function<bo
     }
 
     if (true) { // use Jump Point expansion
-      for (Point successor : successors(node, parent, goal, state_valid))
+      for (Point successor : JPSLSucc(node, parent, goal, state_valid))
         if (parents.find(successor) == parents.end())
           astar.push({successor, node, running_dist + (successor - node).norm()});
     } else { // regular astar expansion
@@ -64,23 +64,6 @@ pair<vector<Point>, float> JPSL::plan(Point start, Point goal, const function<bo
     return {move(sol_path), cost};
   }
   return {vector<Point>(), -1};
-}
-
-std::set<Point> JPSL::successors(const Point & node, const Point & parent, const Point & goal, const function<bool(const Point &)> & state_valid) {
-
-  set<Point> ret;
-
-  const set<Dir> jump_dirs = (node==parent) 
-    ? JPSL::NEIGHBORS_3D                       // no parent, all directions
-    : all_neighbors(node, parent, state_valid);  // jump pruned directions
-
-  for (Dir d : jump_dirs) {
-    auto[succ, new_node] = jump(node, d, goal, state_valid);
-    if (succ) 
-      ret.insert(new_node);
-  }
-
-  return move(ret);
 }
 
 pair<bool, Point> JPSL::jump(const Point & p, const Dir & d, const Point & goal, const function<bool(const Point &)> & state_valid) {
@@ -156,8 +139,8 @@ pair<bool, Point> JPSL::jump(const Point & p, const Dir & d, const Point & goal,
   return {false, p};
 }
 
-set<Dir> JPSL::natural_neighbors(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
-  set<Dir> ret;
+unordered_set<Dir> JPSL::natural_neighbors(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
+  unordered_set<Dir> ret;
 
   Dir par_dir = node.direction_to(parent);
   
@@ -190,11 +173,11 @@ set<Dir> JPSL::natural_neighbors(const Point & node, const Point & parent, const
   return move(ret);
 }
 
-set<Dir> JPSL::all_neighbors(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
+unordered_set<Dir> JPSL::all_neighbors(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
   // return all nodes that require expansion when moving 
   // into unoccupied center of 3x3 box from parent
 
-  set<Dir> ret, nat, forc;
+  unordered_set<Dir> ret, nat, forc;
 
   nat = JPSL::natural_neighbors(node, parent, state_valid);
   forc = JPSL::forced_neighbors_fast(node, parent, state_valid);
@@ -206,10 +189,10 @@ set<Dir> JPSL::all_neighbors(const Point & node, const Point & parent, const fun
   return move(ret);
 }
 
-set<Dir> JPSL::forced_neighbors_fast(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
+unordered_set<Dir> JPSL::forced_neighbors_fast(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
 
   Dir d = node.direction_to(parent);
-  set<Dir> ret;
+  unordered_set<Dir> ret;
 
   switch (d.order()) {
     case 1:
@@ -223,18 +206,19 @@ set<Dir> JPSL::forced_neighbors_fast(const Point & node, const Point & parent, c
       break;
   }
 
-  set<Dir> ret_trans;
-  for (Dir d : ret) 
-    if (state_valid(node+d))
-      ret_trans.insert(d);
+  unordered_set<Dir> ret_trans;
+  copy_if(ret.begin(), ret.end(), inserter(ret_trans, ret_trans.end()), 
+          [state_valid, node] (const Dir & d) {
+            return state_valid(node+d);
+  });
 
   return move(ret_trans);
 }
 
-std::set<Dir> JPSL::forced_neighbors_fast_1d(const Point & node, const Point & parent, const std::function<bool(const Point &)> & state_valid) {
+unordered_set<Dir> JPSL::forced_neighbors_fast_1d(const Point & node, const Point & parent, const std::function<bool(const Point &)> & state_valid) {
   Dir d_parent = node.direction_to(parent);
 
-  set<Dir> ret;
+  unordered_set<Dir> ret;
 
   if (d_parent.dx() != 0) 
     for (Dir d_cand : NIEGHBORS1D_DX)
@@ -256,7 +240,7 @@ std::set<Dir> JPSL::forced_neighbors_fast_1d(const Point & node, const Point & p
 
 bool JPSL::has_forced_neighbor(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
 
-  set<Dir> ret;
+  unordered_set<Dir> ret;
 
   switch (node.direction_to(parent).order()) {
     case 1:
@@ -281,7 +265,7 @@ bool JPSL::has_forced_neighbor(const Point & node, const Point & parent, const f
 bool JPSL::has_forced_neighbor_fast_1d(const Point & node, const Point & parent, const std::function<bool(const Point &)> & state_valid) {
   Dir d_parent = node.direction_to(parent);
 
-  set<Dir> ret;
+  unordered_set<Dir> ret;
 
   if (d_parent.dx() != 0) 
     for (Dir d_cand : NIEGHBORS1D_DX)
@@ -301,11 +285,11 @@ bool JPSL::has_forced_neighbor_fast_1d(const Point & node, const Point & parent,
   return false;
 }
 
-set<Dir> JPSL::forced_neighbors_slow(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
+unordered_set<Dir> JPSL::forced_neighbors_slow(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
 
   Dir d_parent = node.direction_to(parent);
 
-  set<Dir> ret;
+  unordered_set<Dir> ret;
 
   // define valid nodes in the box
   unordered_map<Dir, float> dist;
@@ -335,14 +319,98 @@ set<Dir> JPSL::forced_neighbors_slow(const Point & node, const Point & parent, c
     if (d_parent.norm() + neigh.norm() < d) 
       ret.insert(Dir(neigh));
 
-  // remove natural neighbors
-  set<Dir> nat = JPSL::natural_neighbors(node, parent, state_valid);
-  set<Dir> c;
-  set_difference(make_move_iterator(ret.begin()), 
-                 make_move_iterator(ret.end()), 
-                 nat.begin(), nat.end(), 
-                 inserter(c, c.begin()));
+  // remove natural neighbors (need to be sorted)
+  unordered_set<Dir> nat = JPSL::natural_neighbors(node, parent, state_valid);
+  unordered_set<Dir> c;
+
+  std::copy_if(ret.begin(), ret.end(), std::inserter(c, c.end()),
+              [&nat] (const Dir & d) { return nat.find(d) == nat.end(); });
+
+
+  // set_difference(make_move_iterator(ret.begin()), 
+  //                make_move_iterator(ret.end()), 
+  //                nat.begin(), nat.end(), 
+  //                inserter(c, c.begin()));
   ret.swap(c);
 
   return move(ret);
+}
+
+JPSL::JPSLSucc::JPSLSucc_iter::JPSLSucc_iter(const Point & node, const Point & goal, 
+                                             const function<bool(const Point &)> & state_valid, 
+                                             const unordered_set<Dir> & jump_dirs)
+                                           : node(node), 
+                                             goal(goal), 
+                                             state_valid(state_valid), 
+                                             jump_dirs(jump_dirs),
+                                             res(make_pair(false, Point(0,0,0))),
+                                             it(jump_dirs.begin()) {
+
+  if (it != jump_dirs.end())
+    res = jump(node, *it, goal, state_valid);
+
+  // advance until first is found
+  while (!res.first) {
+    if (++it == jump_dirs.end())
+      break;
+    res = jump(node, *it, goal, state_valid);
+  } 
+}
+
+JPSL::JPSLSucc::JPSLSucc_iter::JPSLSucc_iter(const Point & node, const Point & goal, 
+                                             const function<bool(const Point &)> & state_valid, 
+                                             const unordered_set<Dir> & jump_dirs,
+                                             unordered_set<Dir>::iterator it)
+                                           : node(node), 
+                                             goal(goal), 
+                                             state_valid(state_valid), 
+                                             jump_dirs(jump_dirs),
+                                             res(make_pair(false, Point(0,0,0))),
+                                             it(it) {}
+
+JPSLSucc::JPSLSucc_iter & JPSL::JPSLSucc::JPSLSucc_iter::operator++() {
+
+  ++it;
+  res.first = false;
+
+  if (it != jump_dirs.end())  
+    res = jump(node, *it, goal, state_valid);
+  else 
+    return *this;
+
+  // advance until next is found
+  while (!res.first) {
+    if (++it == jump_dirs.end())
+      break;
+    res = jump(node, *it, goal, state_valid);
+  }
+
+  return *this;
+}
+
+Point JPSL::JPSLSucc::JPSLSucc_iter::operator*() {
+  return res.second;
+}
+
+bool JPSL::JPSLSucc::JPSLSucc_iter::operator!=(const JPSLSucc_iter & other) {
+  return it!=other.it;
+}
+
+JPSL::JPSLSucc::JPSLSucc(const Point & node, const Point & parent, const Point & goal, const function<bool(const Point &)> & state_valid)
+                       : node(node), 
+                         goal(goal), 
+                         state_valid(state_valid) {
+
+  if (node == parent)
+    jump_dirs = JPSL::NEIGHBORS_3D;
+  else
+    jump_dirs = all_neighbors(node, parent, state_valid);
+}
+
+JPSLSucc::JPSLSucc_iter JPSL::JPSLSucc::begin() {
+  return JPSLSucc_iter(node, goal, state_valid, jump_dirs);
+}
+
+JPSLSucc::JPSLSucc_iter JPSL::JPSLSucc::end() {
+  return JPSLSucc_iter(node, goal, state_valid, jump_dirs, jump_dirs.end());
 }
