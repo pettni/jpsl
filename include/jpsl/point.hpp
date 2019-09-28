@@ -52,5 +52,4 @@ namespace std {
   };
 }
 
-
 #endif

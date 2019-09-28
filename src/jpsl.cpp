@@ -60,7 +60,7 @@ pair<vector<Point>, float> JPSL::plan(Point start, Point goal, const function<bo
     }
     sol_path.push_back(goal);
 
-    std::reverse(sol_path.begin(), sol_path.end());
+    reverse(sol_path.begin(), sol_path.end());
     return {move(sol_path), cost};
   }
   return {vector<Point>(), -1};
@@ -139,75 +139,78 @@ pair<bool, Point> JPSL::jump(const Point & p, const Dir & d, const Point & goal,
   return {false, p};
 }
 
-unordered_set<Dir> JPSL::natural_neighbors(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
-  unordered_set<Dir> ret;
+vector<Dir> JPSL::natural_neighbors(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
+  vector<Dir> ret;
 
   Dir par_dir = node.direction_to(parent);
   
-  ret.insert(-par_dir);
+  ret.push_back(-par_dir);
 
   if (par_dir.order() == 2) {
     if ((par_dir.dx() == 0 || par_dir.dy() == 0) && state_valid(node + Dir(0, 0, -par_dir.dz())))
-      ret.emplace(0, 0, -par_dir.dz());
+      ret.emplace_back(0, 0, -par_dir.dz());
     if ((par_dir.dx() == 0 || par_dir.dz() == 0) && state_valid(node + Dir(0, -par_dir.dy(), 0)))
-      ret.emplace(0, -par_dir.dy(), 0);
+      ret.emplace_back(0, -par_dir.dy(), 0);
     if ((par_dir.dy() == 0 || par_dir.dz() == 0) && state_valid(node + Dir(-par_dir.dx(), 0, 0)))
-      ret.emplace(-par_dir.dx(), 0, 0);
+      ret.emplace_back(-par_dir.dx(), 0, 0);
   } 
 
   if (par_dir.order() == 3) {
     if (state_valid(node + Dir(-par_dir.dx(), -par_dir.dy(), 0)))
-      ret.emplace(-par_dir.dx(), -par_dir.dy(), 0);
+      ret.emplace_back(-par_dir.dx(), -par_dir.dy(), 0);
     if (state_valid(node + Dir(-par_dir.dx(), 0, -par_dir.dz())))
-      ret.emplace(-par_dir.dx(), 0, -par_dir.dz());
+      ret.emplace_back(-par_dir.dx(), 0, -par_dir.dz());
     if (state_valid(node + Dir(0, -par_dir.dy(), -par_dir.dz())))
-      ret.emplace(0, -par_dir.dy(), -par_dir.dz());
+      ret.emplace_back(0, -par_dir.dy(), -par_dir.dz());
     if (state_valid(node + Dir(-par_dir.dx(), 0, 0)))
-      ret.emplace(-par_dir.dx(), 0, 0);
+      ret.emplace_back(-par_dir.dx(), 0, 0);
     if (state_valid(node + Dir(0, -par_dir.dy(), 0)))
-      ret.emplace(0, -par_dir.dy(), 0);
+      ret.emplace_back(0, -par_dir.dy(), 0);
     if (state_valid(node + Dir(0, 0, -par_dir.dz())))
-      ret.emplace(0, 0, -par_dir.dz());
+      ret.emplace_back(0, 0, -par_dir.dz());
   }
 
   return move(ret);
 }
 
-unordered_set<Dir> JPSL::all_neighbors(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
+vector<Dir> JPSL::all_neighbors(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
   // return all nodes that require expansion when moving 
   // into unoccupied center of 3x3 box from parent
 
-  unordered_set<Dir> ret, nat, forc;
+  vector<Dir> ret, nat, forc;
 
   nat = JPSL::natural_neighbors(node, parent, state_valid);
   forc = JPSL::forced_neighbors_fast(node, parent, state_valid);
 
+  sort(nat.begin(), nat.end());
+  sort(forc.begin(), forc.end());
+
   set_union(make_move_iterator(nat.begin()), make_move_iterator(nat.end()), 
             make_move_iterator(forc.begin()), make_move_iterator(forc.end()), 
-            inserter(ret, ret.begin()));
+            back_inserter(ret));
 
   return move(ret);
 }
 
-unordered_set<Dir> JPSL::forced_neighbors_fast(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
+vector<Dir> JPSL::forced_neighbors_fast(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
 
   Dir d = node.direction_to(parent);
-  unordered_set<Dir> ret;
+  vector<Dir> ret;
 
   switch (d.order()) {
     case 1:
       return forced_neighbors_fast_1d(node, parent, state_valid);   // closed-form solution
       break;
     case 2:
-      ret = decode_fn_2d(node, parent, lookup2d[encode_obs_2d(node, parent, state_valid)]);
+      ret = decode_fn<2>(node, parent, lookup2d[encode_obs<2>(node, parent, state_valid)]);
       break;
     case 3:
-      ret = decode_fn_3d(node, parent, lookup3d[encode_obs_3d(node, parent, state_valid)]);
+      ret = decode_fn<3>(node, parent, lookup3d[encode_obs<3>(node, parent, state_valid)]);
       break;
   }
 
-  unordered_set<Dir> ret_trans;
-  copy_if(ret.begin(), ret.end(), inserter(ret_trans, ret_trans.end()), 
+  vector<Dir> ret_trans;
+  copy_if(ret.begin(), ret.end(), back_inserter(ret_trans), 
           [state_valid, node] (const Dir & d) {
             return state_valid(node+d);
   });
@@ -215,45 +218,45 @@ unordered_set<Dir> JPSL::forced_neighbors_fast(const Point & node, const Point &
   return move(ret_trans);
 }
 
-unordered_set<Dir> JPSL::forced_neighbors_fast_1d(const Point & node, const Point & parent, const std::function<bool(const Point &)> & state_valid) {
+vector<Dir> JPSL::forced_neighbors_fast_1d(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
   Dir d_parent = node.direction_to(parent);
 
-  unordered_set<Dir> ret;
+  vector<Dir> ret;
 
   if (d_parent.dx() != 0) 
     for (Dir d_cand : NIEGHBORS1D_DX)
       if (!state_valid(node + d_cand) && state_valid(node + d_cand - d_parent))
-        ret.emplace(-d_parent.dx(), d_cand.dy(), d_cand.dz());  
+        ret.emplace_back(-d_parent.dx(), d_cand.dy(), d_cand.dz());  
 
   if (d_parent.dy() != 0) 
     for (Dir d_cand : NIEGHBORS1D_DY)
       if (!state_valid(node + d_cand) && state_valid(node + d_cand - d_parent))
-        ret.emplace(d_cand.dx(), -d_parent.dy(), d_cand.dz());  
+        ret.emplace_back(d_cand.dx(), -d_parent.dy(), d_cand.dz());  
 
   if (d_parent.dz() != 0) 
     for (Dir d_cand : NIEGHBORS1D_DZ)
       if (!state_valid(node + d_cand) && state_valid(node + d_cand - d_parent))
-        ret.emplace(d_cand.dx(), d_cand.dy(), -d_parent.dz());  
+        ret.emplace_back(d_cand.dx(), d_cand.dy(), -d_parent.dz());  
 
   return move(ret);
 }
 
 bool JPSL::has_forced_neighbor(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
 
-  unordered_set<Dir> ret;
+  vector<Dir> ret;
 
   switch (node.direction_to(parent).order()) {
     case 1:
       return has_forced_neighbor_fast_1d(node, parent, state_valid);   // closed-form solution
       break;
     case 2:
-      ret = decode_fn_2d(node, parent, lookup2d[encode_obs_2d(node, parent, state_valid)]);
+      ret = decode_fn<2>(node, parent, lookup2d[encode_obs<2>(node, parent, state_valid)]);
       for (Dir d : ret)
         if (state_valid(node+d))
           return true;
       break;
     case 3:
-      ret = decode_fn_3d(node, parent, lookup3d[encode_obs_3d(node, parent, state_valid)]);
+      ret = decode_fn<3>(node, parent, lookup3d[encode_obs<3>(node, parent, state_valid)]);
       for (Dir d : ret)
         if (state_valid(node+d))
           return true;
@@ -262,10 +265,10 @@ bool JPSL::has_forced_neighbor(const Point & node, const Point & parent, const f
   return false;
 }
 
-bool JPSL::has_forced_neighbor_fast_1d(const Point & node, const Point & parent, const std::function<bool(const Point &)> & state_valid) {
+bool JPSL::has_forced_neighbor_fast_1d(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
   Dir d_parent = node.direction_to(parent);
 
-  unordered_set<Dir> ret;
+  vector<Dir> ret;
 
   if (d_parent.dx() != 0) 
     for (Dir d_cand : NIEGHBORS1D_DX)
@@ -285,11 +288,11 @@ bool JPSL::has_forced_neighbor_fast_1d(const Point & node, const Point & parent,
   return false;
 }
 
-unordered_set<Dir> JPSL::forced_neighbors_slow(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
+vector<Dir> JPSL::forced_neighbors_slow(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
 
   Dir d_parent = node.direction_to(parent);
 
-  unordered_set<Dir> ret;
+  vector<Dir> ret;
 
   // define valid nodes in the box
   unordered_map<Dir, float> dist;
@@ -317,28 +320,20 @@ unordered_set<Dir> JPSL::forced_neighbors_slow(const Point & node, const Point &
   // forced neighbors are those whose shortest distance from parent is through (0,0,0)
   for (auto[neigh, d] : dist) 
     if (d_parent.norm() + neigh.norm() < d) 
-      ret.insert(Dir(neigh));
+      ret.push_back(Dir(neigh));
 
-  // remove natural neighbors (need to be sorted)
-  unordered_set<Dir> nat = JPSL::natural_neighbors(node, parent, state_valid);
-  unordered_set<Dir> c;
+  // remove natural neighbors
+  vector<Dir> nat = JPSL::natural_neighbors(node, parent, state_valid);
+  vector<Dir> ret_clean;
+  copy_if(ret.begin(), ret.end(), back_inserter(ret_clean),
+              [&nat] (const Dir & d) { return find(nat.begin(), nat.end(), d) == nat.end(); });
 
-  std::copy_if(ret.begin(), ret.end(), std::inserter(c, c.end()),
-              [&nat] (const Dir & d) { return nat.find(d) == nat.end(); });
-
-
-  // set_difference(make_move_iterator(ret.begin()), 
-  //                make_move_iterator(ret.end()), 
-  //                nat.begin(), nat.end(), 
-  //                inserter(c, c.begin()));
-  ret.swap(c);
-
-  return move(ret);
+  return move(ret_clean);
 }
 
 JPSL::JPSLSucc::JPSLSucc_iter::JPSLSucc_iter(const Point & node, const Point & goal, 
                                              const function<bool(const Point &)> & state_valid, 
-                                             const unordered_set<Dir> & jump_dirs)
+                                             const vector<Dir> & jump_dirs)
                                            : node(node), 
                                              goal(goal), 
                                              state_valid(state_valid), 
@@ -359,8 +354,8 @@ JPSL::JPSLSucc::JPSLSucc_iter::JPSLSucc_iter(const Point & node, const Point & g
 
 JPSL::JPSLSucc::JPSLSucc_iter::JPSLSucc_iter(const Point & node, const Point & goal, 
                                              const function<bool(const Point &)> & state_valid, 
-                                             const unordered_set<Dir> & jump_dirs,
-                                             unordered_set<Dir>::iterator it)
+                                             const vector<Dir> & jump_dirs,
+                                             vector<Dir>::iterator it)
                                            : node(node), 
                                              goal(goal), 
                                              state_valid(state_valid), 

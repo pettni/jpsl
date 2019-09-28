@@ -8,7 +8,6 @@
 #include <functional>
 #include <map>
 #include <unordered_map>
-#include <unordered_set>
 #include <stdint.h>
 #include <iostream>
 #include <tuple>
@@ -25,14 +24,14 @@ namespace JPSL {
   std::pair<bool, Point> jump(const Point &, const Dir &, const Point &, const std::function<bool(const Point &)> &);
 
   // neighbor algos
-  std::unordered_set<Dir> natural_neighbors(const Point &, const Point &, const std::function<bool(const Point &)> &);
-  std::unordered_set<Dir> forced_neighbors_fast(const Point &, const Point &, const std::function<bool(const Point &)> &);
-  std::unordered_set<Dir> forced_neighbors_slow(const Point &, const Point &, const std::function<bool(const Point &)> &);
-  std::unordered_set<Dir> all_neighbors(const Point &, const Point &, const std::function<bool(const Point &)> &);
+  std::vector<Dir> natural_neighbors(const Point &, const Point &, const std::function<bool(const Point &)> &);
+  std::vector<Dir> forced_neighbors_fast(const Point &, const Point &, const std::function<bool(const Point &)> &);
+  std::vector<Dir> forced_neighbors_slow(const Point &, const Point &, const std::function<bool(const Point &)> &);
+  std::vector<Dir> all_neighbors(const Point &, const Point &, const std::function<bool(const Point &)> &);
 
-  bool has_forced_neighbor(const Point &, const Point &, const std::function<bool(const Point &)> &);
+  std::vector<Dir> forced_neighbors_fast_1d(const Point &, const Point &, const std::function<bool(const Point &)> &);
   
-  std::unordered_set<Dir> forced_neighbors_fast_1d(const Point &, const Point &, const std::function<bool(const Point &)> &);
+  bool has_forced_neighbor(const Point &, const Point &, const std::function<bool(const Point &)> &);
   bool has_forced_neighbor_fast_1d(const Point &, const Point &, const std::function<bool(const Point &)> &);
 
   // iterator class for JPS successors
@@ -41,8 +40,8 @@ namespace JPSL {
 
     class JPSLSucc_iter {
     public:
-    JPSLSucc_iter(const Point &, const Point &, const std::function<bool(const Point &)> &, const std::unordered_set<Dir> &);
-    JPSLSucc_iter(const Point &, const Point &, const std::function<bool(const Point &)> &, const std::unordered_set<Dir> &, std::unordered_set<Dir>::iterator);    
+    JPSLSucc_iter(const Point &, const Point &, const std::function<bool(const Point &)> &, const std::vector<Dir> &);
+    JPSLSucc_iter(const Point &, const Point &, const std::function<bool(const Point &)> &, const std::vector<Dir> &, std::vector<Dir>::iterator);    
       typedef Dir value_type;
       JPSLSucc_iter & operator++();
       Point operator*();
@@ -53,9 +52,9 @@ namespace JPSL {
       const Point & node;
       const Point & goal;
       const std::function<bool(const Point &)> & state_valid;
-      const std::unordered_set<Dir> & jump_dirs;
+      const std::vector<Dir> & jump_dirs;
       std::pair<bool, Point> res;
-      std::unordered_set<Dir>::const_iterator it;
+      std::vector<Dir>::const_iterator it;
     };
 
     JPSLSucc(const Point &, const Point &, const Point &, const std::function<bool(const Point &)> &);
@@ -66,7 +65,7 @@ namespace JPSL {
     const Point & node;
     const Point & goal;
     const std::function<bool(const Point &)> & state_valid;
-    std::unordered_set<Dir> jump_dirs;
+    std::vector<Dir> jump_dirs;
   };
 
 }

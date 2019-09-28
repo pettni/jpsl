@@ -27,7 +27,6 @@ sudo make install  # optional
  - [ ] More testing to make sure fast neighbor code is correct
  - [x] Make things iterators instead of returning ```std::set```
  - [ ] Easy switch between A*, JPS, Bounded JPS
- - [ ] Algos that are optimized for 2D problems
 
 # See also
 
