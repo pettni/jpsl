@@ -23,7 +23,7 @@ namespace JPSL {
   std::pair<std::vector<Point>, float> plan(Point, Point, int, const std::function<bool(const Point &)> &);
   std::pair<std::vector<Point>, float> plan_jps(Point, Point, const std::function<bool(const Point &)> &);
   std::pair<std::vector<Point>, float> plan_astar(Point, Point, const std::function<bool(const Point &)> &);
-  std::pair<bool, Point> jump(const Point &, const Dir &, const Point &, int, const std::function<bool(const Point &)> &);
+  std::pair<uint8_t, Point> jump(const Point &, const Dir &, const Point &, int, const std::function<bool(const Point &)> &);
 
   // neighbor algos
   std::vector<Dir> natural_neighbors(const Point &, const Point &, const std::function<bool(const Point &)> &);
@@ -56,7 +56,7 @@ namespace JPSL {
       int max_jump;
       const std::function<bool(const Point &)> & state_valid;
       const std::vector<Dir> & jump_dirs;
-      std::pair<bool, Point> res;
+      std::pair<uint8_t, Point> res;
       std::vector<Dir>::const_iterator it;
     };
 

@@ -29,7 +29,8 @@ namespace JPSL {
     bool operator!=(const Point &) const;
     bool operator<(const Point &) const;
     float norm() const;
-
+    float manhattan_norm() const;
+  
     Dir incoming_dir(const Point &) const;
     Dir direction_to(const Point &) const;
 

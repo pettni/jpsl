@@ -86,7 +86,7 @@ pair<vector<Point>, float> JPSL::plan_astar(Point start, Point goal, const funct
   return plan(start, goal, 1, state_valid);
 }
 
-pair<bool, Point> JPSL::jump(const Point & p, const Dir & d, const Point & goal, int max_jump, const function<bool(const Point &)> & state_valid) {
+pair<uint8_t, Point> JPSL::jump(const Point & p, const Dir & d, const Point & goal, int max_jump, const function<bool(const Point &)> & state_valid) {
   // jump from a point in a direction
   //  INPUTS
   //  ======
@@ -106,12 +106,12 @@ pair<bool, Point> JPSL::jump(const Point & p, const Dir & d, const Point & goal,
   //  =======
   //
   //   - ret : pair<bool, JPSL::Point>  
-  //       ret.first true if successor found
+  //       ret.first 0 no successor, 1 successor, 2 goal
   //       ret.second stores successor
   //
 
   if (!state_valid(p))  // can't jump from here
-    return {false, p};
+    return {0, p};
 
   Point par_iter = p;
   Point nod_iter = p+d;
@@ -121,14 +121,14 @@ pair<bool, Point> JPSL::jump(const Point & p, const Dir & d, const Point & goal,
 
     // check if we hit goal node or at max length
     if (nod_iter == goal)
-      return {true, nod_iter};
+      return {2, nod_iter};
 
     // check if forced neighbor exists
     if (has_forced_neighbor(nod_iter, par_iter, state_valid))
-      return {true, nod_iter};
+      return {1, nod_iter};
 
     if (len_jump == max_jump)
-      return {true, nod_iter};
+      return {1, nod_iter};
 
     // recursively jump in lower-order directions without length restriction
     vector<Dir> jumpdirs = {};
@@ -144,14 +144,14 @@ pair<bool, Point> JPSL::jump(const Point & p, const Dir & d, const Point & goal,
     for (const Dir & jumpdir : jumpdirs) {
         auto[succ, point] = jump(nod_iter, jumpdir, goal, -1, state_valid);
         if (succ)
-          return {true, nod_iter};      
+          return {succ, nod_iter};      
     }
 
     par_iter += d;
     nod_iter += d;
     ++len_jump;
   }
-  return {false, p};
+  return {0, p};
 }
 
 vector<Dir> JPSL::natural_neighbors(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
@@ -355,7 +355,7 @@ JPSL::JPSLSucc::JPSLSucc_iter::JPSLSucc_iter(const Point & node, const Point & g
                                              max_jump(max_jump),
                                              state_valid(state_valid), 
                                              jump_dirs(jump_dirs),
-                                             res(make_pair(false, Point(0,0,0))),
+                                             res(make_pair(0, Point(0,0,0))),
                                              it(jump_dirs.begin()) {
 
   if (it != jump_dirs.end())
@@ -366,7 +366,11 @@ JPSL::JPSLSucc::JPSLSucc_iter::JPSLSucc_iter(const Point & node, const Point & g
     if (++it == jump_dirs.end())
       break;
     res = jump(node, *it, goal, max_jump, state_valid);
-  } 
+  }
+
+  if (res.first == 2)  // goal in sight, end iterator
+    advance(it, distance(it, jump_dirs.end())-1);
+
 }
 
 JPSL::JPSLSucc::JPSLSucc_iter::JPSLSucc_iter(const Point & node, const Point & goal, 
@@ -379,7 +383,7 @@ JPSL::JPSLSucc::JPSLSucc_iter::JPSLSucc_iter(const Point & node, const Point & g
                                              max_jump(max_jump),
                                              state_valid(state_valid), 
                                              jump_dirs(jump_dirs),
-                                             res(make_pair(false, Point(0,0,0))),
+                                             res(make_pair(0, Point(0,0,0))),
                                              it(it) {}
 
 JPSLSucc::JPSLSucc_iter & JPSL::JPSLSucc::JPSLSucc_iter::operator++() {
@@ -398,6 +402,9 @@ JPSLSucc::JPSLSucc_iter & JPSL::JPSLSucc::JPSLSucc_iter::operator++() {
       break;
     res = jump(node, *it, goal, max_jump, state_valid);
   }
+
+  if (res.first == 2)  // goal in sight, end iterator
+    advance(it, distance(it, jump_dirs.end())-1);
 
   return *this;
 }

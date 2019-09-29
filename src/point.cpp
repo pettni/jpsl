@@ -40,6 +40,10 @@ float Point::norm() const {
   return sqrt(float(x_*x_ + y_*y_ + z_*z_));
 }
 
+float Point::manhattan_norm() const {
+  return abs(x_) + abs(y_) + abs(z_);
+}
+
 Dir Point::direction_to(const Point & p) const {
   int64_t distance = max(abs(p.x_-x_), max(abs(p.y_-y_), abs(p.z_-z_)));
   if (distance == 0)

@@ -27,7 +27,6 @@ sudo make install  # optional
  - [x] Easy switching between A*, JPS, Bounded JPS
  - [ ] Implement ```state_valid()``` for Octomap
  - [ ] Random testing to certify that fast neighbor code is correct
- - [ ] Partial node expansion?
  - [ ] Adaptive jump length?
 
 # See also
