@@ -48,22 +48,22 @@ TEST(test_jump, testJump)  {
   //
   // we block z=-1 and z=1 to force a 2D problem
 
-  auto[succ1, point1] = jump({0,1,0}, {1,0,0}, {6,3,0}, is_valid1);
+  auto[succ1, point1] = jump({0,1,0}, {1,0,0}, {6,3,0}, -1, is_valid1);
 
   EXPECT_EQ(succ1, true);
   EXPECT_EQ(point1, Point({5,1,0}));
 
-  auto[succ2, point2] = jump({2,3,0}, {1,0,0}, {6,3,0}, is_valid1);
+  auto[succ2, point2] = jump({2,3,0}, {1,0,0}, {6,3,0}, -1, is_valid1);
 
   EXPECT_EQ(succ2, true);
   EXPECT_EQ(point2, Point({5,3,0}));
 
-  auto[succ3, point3] = jump({2,1,0}, {1,1,0}, {6,3,0}, is_valid1);
+  auto[succ3, point3] = jump({2,1,0}, {1,1,0}, {6,3,0}, -1, is_valid1);
 
   EXPECT_EQ(succ3, true);
   EXPECT_EQ(point3, Point({4,3,0}));
 
-  auto[succ4, point4] = jump({0,1,0}, {1,1,0}, {6,3,0}, is_valid2);
+  auto[succ4, point4] = jump({0,1,0}, {1,1,0}, {6,3,0}, -1, is_valid2);
 
   EXPECT_EQ(succ4, true);
   EXPECT_EQ(point4, Point({1,2,0}));

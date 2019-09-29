@@ -19,7 +19,7 @@ bool state_valid(const Point & p) {
 }
 
 TEST(test_jps, solve_2d) {
-  auto[path, cost] = plan({0,0,0}, {7,0,0}, &state_valid);
+  auto[path, cost] = plan_jps({0,0,0}, {7,0,0}, &state_valid);
   vector<Point> ans = {{0,0,0}, {3,3,0}, {5,3,0}, {7,1,0}, {7,0,0}};
   EXPECT_EQ(path, ans);
   EXPECT_LE(cost, 10.075);

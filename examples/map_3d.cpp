@@ -19,12 +19,13 @@ bool is_valid(const Point & p, const vector<bool> & obs,
 int main(int argc, char const *argv[]) {
   ifstream infile;
 
-  if (argc < 8) {
-    cout << "Usage: map_3d mapfile x0 y0 z0 x1 y1 z3" << endl;
+  if (argc < 9) {
+    cout << "Usage: map_3d mapfile max_jump x0 y0 z0 x1 y1 z3" << endl;
     return 0;
   }
 
   infile.open(argv[1]);
+  int max_jump = atoi(argv[2]);
 
   string s;
   uint64_t x, y, z, xsize, ysize, zsize;
@@ -38,8 +39,8 @@ int main(int argc, char const *argv[]) {
 
   infile.close();
 
-  Point start(atoi(argv[2]),atoi(argv[3]),atoi(argv[4]));
-  Point goal(atoi(argv[5]),atoi(argv[6]),atoi(argv[7]));
+  Point start(atoi(argv[3]),atoi(argv[4]),atoi(argv[5]));
+  Point goal(atoi(argv[6]),atoi(argv[7]),atoi(argv[8]));
 
   if (!is_valid(start, obstacles, xsize, ysize, zsize)){
     cout << "Start state not valid" << endl;
@@ -51,15 +52,15 @@ int main(int argc, char const *argv[]) {
     return 0;
   }
 
-  cout << "Finding path from " << start << " to " << goal << endl;
+  cout << "Finding path from " << start << " to " << goal << " with max_jump=" << max_jump << endl;
 
   auto t0 = chrono::steady_clock::now();
 
-  auto[path, length] = plan(start, goal, std::bind(is_valid, placeholders::_1, obstacles, xsize, ysize, zsize));
+  auto[path, length] = plan(start, goal, max_jump, std::bind(is_valid, placeholders::_1, obstacles, xsize, ysize, zsize));
 
   auto t1 = chrono::steady_clock::now();
 
-  cout << "Found path with length " << length << " in " << chrono::duration_cast<chrono::seconds>(t1 - t0).count() << "s" << endl;
+  cout << "Found path with length " << length << " in " << chrono::duration_cast<chrono::milliseconds>(t1 - t0).count() << "ms" << endl;
   for (Point p : path) 
     cout << p << endl;
 

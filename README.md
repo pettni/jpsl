@@ -23,10 +23,12 @@ sudo make install  # optional
  - [x] Create a grid mask class that packs info into a ```uint16_t``` and uses it for obstacles and neighbors
  - [x] Symmetrize problem (i.e. always have parent in lower 2x2)
  - [x] Run all possible combinations of 3x3 problems, store solutions in lookup table
- - [ ] Implement ```state_valid()``` for Octomap
- - [ ] More testing to make sure fast neighbor code is correct
  - [x] Make things iterators instead of returning ```std::set```
- - [ ] Easy switch between A*, JPS, Bounded JPS
+ - [x] Easy switching between A*, JPS, Bounded JPS
+ - [ ] Implement ```state_valid()``` for Octomap
+ - [ ] Random testing to certify that fast neighbor code is correct
+ - [ ] Partial node expansion?
+ - [ ] Adaptive jump length?
 
 # See also
 
