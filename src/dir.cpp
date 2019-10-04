@@ -20,7 +20,7 @@ uint8_t Dir::order() const {
 }
 
 Dir Dir::operator-() const {
-  return move(Dir(-dx_,-dy_,-dz_));
+  return Dir(-dx_,-dy_,-dz_);
 }
 
 float Dir::distance_to(const Dir & other) const {

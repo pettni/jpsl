@@ -185,7 +185,7 @@ vector<Dir> JPSL::natural_neighbors(const Point & node, const Point & parent, co
       ret.emplace_back(0, 0, -par_dir.dz());
   }
 
-  return move(ret);
+  return ret;
 }
 
 vector<Dir> JPSL::all_neighbors(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
@@ -204,7 +204,7 @@ vector<Dir> JPSL::all_neighbors(const Point & node, const Point & parent, const 
             make_move_iterator(forc.begin()), make_move_iterator(forc.end()), 
             back_inserter(ret));
 
-  return move(ret);
+  return ret;
 }
 
 vector<Dir> JPSL::forced_neighbors_fast(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
@@ -230,7 +230,7 @@ vector<Dir> JPSL::forced_neighbors_fast(const Point & node, const Point & parent
             return state_valid(node+d);
   });
 
-  return move(ret_trans);
+  return ret_trans;
 }
 
 vector<Dir> JPSL::forced_neighbors_fast_1d(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
@@ -253,7 +253,7 @@ vector<Dir> JPSL::forced_neighbors_fast_1d(const Point & node, const Point & par
       if (!state_valid(node + d_cand) && state_valid(node + d_cand - d_parent))
         ret.emplace_back(d_cand.dx(), d_cand.dy(), -d_parent.dz());  
 
-  return move(ret);
+  return ret;
 }
 
 bool JPSL::has_forced_neighbor(const Point & node, const Point & parent, const function<bool(const Point &)> & state_valid) {
@@ -343,7 +343,7 @@ vector<Dir> JPSL::forced_neighbors_slow(const Point & node, const Point & parent
   copy_if(ret.begin(), ret.end(), back_inserter(ret_clean),
               [&nat] (const Dir & d) { return find(nat.begin(), nat.end(), d) == nat.end(); });
 
-  return move(ret_clean);
+  return ret_clean;
 }
 
 JPSL::JPSLSucc::JPSLSucc_iter::JPSLSucc_iter(const Point & node, const Point & goal, 

@@ -14,6 +14,7 @@
 
 #include "jpsl/dir.hpp"
 #include "jpsl/point.hpp"
+#include "jpsl/encodings.hpp"
 
 namespace JPSL {
 
