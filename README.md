@@ -16,19 +16,6 @@ make test          # optional run tests
 sudo make install  # optional
 ```
 
-# Roadmap
-
- - [x] Implement JPS
- - [x] Planning function that takes function ```state_valid()```
- - [x] Create a grid mask class that packs info into a ```uint16_t``` and uses it for obstacles and neighbors
- - [x] Symmetrize problem (i.e. always have parent in lower 2x2)
- - [x] Run all possible combinations of 3x3 problems, store solutions in lookup table
- - [x] Make things iterators instead of returning ```std::set```
- - [x] Easy switching between A*, JPS, Bounded JPS
- - [ ] Implement ```state_valid()``` for Octomap
- - [ ] Random testing to certify that fast neighbor code is correct
- - [ ] Adaptive jump length?
-
 # See also
 
  - https://github.com/KumarRobotics/jps3d
